@@ -1,0 +1,682 @@
+<!-- add-stone.html -->
+<!doctype html>
+<html lang="uk">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Додавання нового каменя</title>
+  <style>
+    :root{
+      --bg1:#6f8fb9;
+      --bg2:#3459b6;
+
+      --panel:rgba(255,255,255,.06);
+      --panel2:rgba(255,255,255,.10);
+      --stroke:rgba(255,255,255,.14);
+
+      --text:rgba(255,255,255,.92);
+      --muted:rgba(255,255,255,.72);
+
+      --white:#fff;
+
+      --btn:#4a86ff;
+      --btn2:#3c78ff;
+      --danger:#ff6a5f;
+
+      --radius:22px;
+      --radius2:14px;
+
+      --shadow:0 30px 90px rgba(0,0,0,.25);
+    }
+
+    *{ box-sizing:border-box; }
+
+    body{
+      margin:0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      background:
+        radial-gradient(1200px 600px at 20% 10%, rgba(255,255,255,.22), transparent 50%),
+        linear-gradient(180deg, var(--bg1), var(--bg2));
+      color:var(--text);
+      min-height:100vh;
+      padding:22px;
+    }
+
+    .frame{
+      width:min(1500px, 100%);
+      margin:0 auto;
+      background:rgba(255,255,255,.06);
+      border:1px solid rgba(255,255,255,.10);
+      border-radius:22px;
+      box-shadow:var(--shadow);
+      padding:18px;
+      overflow:hidden;
+    }
+
+    .content{
+      background:rgba(255,255,255,.06);
+      border:1px solid rgba(255,255,255,.10);
+      border-radius:22px;
+      padding:26px;
+      max-height: 640px;
+      overflow:auto;
+    }
+
+    .header{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:14px;
+      margin-bottom:18px;
+    }
+
+    h1{
+      font-size:44px;
+      font-weight:800;
+      letter-spacing:.2px;
+      margin:0;
+      color:rgba(255,255,255,.92);
+      text-shadow:0 2px 14px rgba(0,0,0,.18);
+    }
+
+    .close{
+      border:1px solid rgba(255,255,255,.18);
+      background:rgba(255,255,255,.08);
+      color:rgba(255,255,255,.90);
+      width:44px;
+      height:44px;
+      border-radius:14px;
+      cursor:pointer;
+      font-size:22px;
+      display:grid;
+      place-items:center;
+    }
+    .close:hover{ background:rgba(255,255,255,.12); }
+
+    .grid{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:18px 22px;
+      align-items:start;
+    }
+
+    .row{ grid-column:1 / -1; }
+
+    .label{
+      font-size:18px;
+      font-weight:700;
+      color:rgba(255,255,255,.90);
+      display:flex;
+      gap:10px;
+      align-items:center;
+      margin-bottom:10px;
+    }
+    .req{
+      color:var(--danger);
+      font-weight:900;
+      margin-right:6px;
+    }
+
+    .input, .select{
+      width:100%;
+      border:1px solid var(--stroke);
+      background:rgba(255,255,255,.08);
+      color:rgba(255,255,255,.92);
+      border-radius:12px;
+      padding:14px 16px;
+      outline:none;
+      font-size:18px;
+    }
+    .input::placeholder{ color:rgba(255,255,255,.55); }
+    .select option{ color:#0f172a; }
+
+    .subgrid-2{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:12px;
+    }
+    .subgrid-3{
+      display:grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap:12px;
+    }
+
+    .helper{
+      font-size:14px;
+      color:rgba(255,255,255,.70);
+      margin-top:10px;
+      line-height:1.35;
+    }
+
+    .errors{
+      display:none;
+      margin-top:10px;
+      padding:12px 14px;
+      border:1px solid rgba(255,106,95,.35);
+      background:rgba(255,106,95,.10);
+      border-radius:14px;
+      color:rgba(255,255,255,.92);
+    }
+    .errors ul{ margin:0; padding-left:18px; }
+
+    .footer{
+      display:flex;
+      justify-content:flex-end;
+      gap:12px;
+      margin-top:18px;
+      padding-top:16px;
+      border-top:1px solid rgba(255,255,255,.12);
+    }
+
+    .btn{
+      border:1px solid rgba(255,255,255,.18);
+      background:rgba(255,255,255,.08);
+      color:rgba(255,255,255,.92);
+      padding:14px 18px;
+      border-radius:14px;
+      cursor:pointer;
+      font-weight:800;
+      font-size:16px;
+      min-width:140px;
+    }
+    .btn:hover{ background:rgba(255,255,255,.12); }
+
+    .btn-primary{
+      border-color:rgba(255,255,255,.22);
+      background:linear-gradient(180deg, rgba(74,134,255,.65), rgba(60,120,255,.40));
+      box-shadow:0 10px 22px rgba(0,0,0,.18);
+    }
+    .btn-primary:hover{ filter:brightness(1.03); }
+
+    .hidden{ display:none !important; }
+
+    @media (max-width: 980px){
+      .grid{ grid-template-columns:1fr; }
+      .subgrid-3{ grid-template-columns:1fr; }
+      .subgrid-2{ grid-template-columns:1fr; }
+      h1{ font-size:34px; }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="frame">
+    <div class="content">
+      <div class="header">
+        <h1 id="pageTitle">Додавання нового каменя</h1>
+        <button class="close" type="button" aria-label="Закрити" onclick="closeModal()">×</button>
+      </div>
+
+      <form id="stoneForm" novalidate>
+        <div class="grid">
+
+          <!-- 1) Орган -->
+          <div class="row">
+            <div class="label"><span class="req">*</span>Орган</div>
+            <select id="organ" name="organ" class="select" required>
+              <option value="" selected disabled>Оберіть орган</option>
+              <option value="RK">Права нирка</option>
+              <option value="LK">Ліва нирка</option>
+              <option value="RU">Правий сечовід</option>
+              <option value="LU">Лівий сечовід</option>
+              <option value="BL">Сечовий міхур</option>
+            </select>
+          </div>
+
+          <!-- 2) Локалізація -->
+          <div class="row">
+            <div class="label"><span class="req">*</span>Локалізація каменя</div>
+            <select id="location" name="location" class="select" required>
+              <option value="" selected disabled>Спочатку оберіть орган</option>
+            </select>
+            <div class="helper">Список локалізацій залежить від обраного органа.</div>
+          </div>
+
+          <!-- 3) Розмір -->
+          <div class="row">
+            <div class="label"><span class="req">*</span>Розмір каменя, мм</div>
+            <div class="subgrid-2">
+              <div>
+                <div class="label" style="font-size:16px;margin-bottom:10px;"><span style="width:0;"></span>Максимальна довжина</div>
+                <input id="lenMax" name="lenMax" class="input" type="number" inputmode="decimal" min="0" step="0.1" placeholder="напр. 8" required>
+              </div>
+              <div>
+                <div class="label" style="font-size:16px;margin-bottom:10px;"><span style="width:0;"></span>Максимальна ширина</div>
+                <input id="widMax" name="widMax" class="input" type="number" inputmode="decimal" min="0" step="0.1" placeholder="напр. 5" required>
+              </div>
+            </div>
+            <div class="helper">
+              Ширина — найбільший лінійний розмір, виміряний перпендикулярно до максимальної довжини.
+            </div>
+          </div>
+
+          <!-- 4) Щільність -->
+          <div class="row">
+            <div class="label"><span class="req">*</span>Щільність каменя, HU</div>
+            <div class="subgrid-3">
+              <div>
+                <div class="label" style="font-size:16px;margin-bottom:10px;"><span style="width:0;"></span>Мінімальна</div>
+                <input id="huMin" name="huMin" class="input" type="number" inputmode="numeric" step="1" placeholder="напр. 300" required>
+              </div>
+              <div>
+                <div class="label" style="font-size:16px;margin-bottom:10px;"><span style="width:0;"></span>Середня</div>
+                <input id="huMean" name="huMean" class="input" type="number" inputmode="numeric" step="1" placeholder="напр. 420" required>
+              </div>
+              <div>
+                <div class="label" style="font-size:16px;margin-bottom:10px;"><span style="width:0;"></span>Максимальна</div>
+                <input id="huMax" name="huMax" class="input" type="number" inputmode="numeric" step="1" placeholder="напр. 580" required>
+              </div>
+            </div>
+          </div>
+
+          <!-- 5) Прогноз -->
+          <div class="row">
+            <div class="label"><span class="req">*</span>Прогноз лікаря щодо розчинення каменя</div>
+            <select id="prognosis" name="prognosis" class="select" required>
+              <option value="" selected disabled>Оберіть прогноз</option>
+              <option value="high">Високий</option>
+              <option value="medium">Середній</option>
+              <option value="low">Низький</option>
+            </select>
+          </div>
+
+          <!-- 6) Статус -->
+          <div class="row">
+            <div class="label"><span class="req">*</span>Статус каменя</div>
+            <select id="status" name="status" class="select" required>
+              <option value="active">Активний</option>
+              <option value="shrinking">Зменшується</option>
+              <option value="no_response">Без відповіді</option>
+              <option value="resolved">Зник</option>
+            </select>
+          </div>
+
+          <!-- 7) Метод зникнення (показується тільки якщо статус "зник") -->
+          <div class="row hidden" id="disappearanceSection">
+            <div class="label"><span class="req">*</span>Метод зникнення каменя</div>
+            <select id="disappearanceMethod" name="disappearanceMethod" class="select">
+              <option value="" selected disabled>Оберіть метод</option>
+              <option value="chemical">Хімічний (хемолітоліз)</option>
+              <option value="physical">Фізичний</option>
+              <option value="combined">Змішаний</option>
+              <option value="spontaneous">Спонтанне відходження</option>
+            </select>
+          </div>
+
+          <!-- 8) Під-методи для "Хімічний" -->
+          <div class="row hidden" id="chemicalMethodSection">
+            <div class="label"><span class="req">*</span>Хімічний літоліз</div>
+            <select id="chemicalMethod" name="chemicalMethod" class="select">
+              <option value="" selected disabled>Оберіть метод</option>
+              <option value="oral_chemolitholysis">Пероральний хемолітоліз</option>
+              <option value="urine_alkalinization">Алкалізація сечі</option>
+              <option value="programmed_chemolitholysis">Програмований хемолітоліз</option>
+            </select>
+          </div>
+
+          <!-- 9) Під-методи для "Фізичний" -->
+          <div class="row hidden" id="physicalMethodSection">
+            <div class="label"><span class="req">*</span>Фізичний метод</div>
+            <select id="physicalMethod" name="physicalMethod" class="select">
+              <option value="" selected disabled>Оберіть метод</option>
+              <option value="urs">URS – уретероскопія</option>
+              <option value="rirs">RIRS – ретроградна інтраренальна хірургія</option>
+              <option value="pcnl">PCNL – перкутанна нефролітотомія</option>
+              <option value="eswl">ESWL – дистанційна ударно-хвильова літотрипсія</option>
+              <option value="laparoscopic">Лапароскопічне видалення каменя</option>
+              <option value="open_surgery">Відкрите хірургічне видалення</option>
+            </select>
+          </div>
+
+          <!-- 10) Під-методи для "Змішаний" -->
+          <div class="row hidden" id="combinedMethodSection">
+            <div class="label"><span class="req">*</span>Тип комбінованого методу (Змішаний)</div>
+            <select id="combinedMethod" name="combinedMethod" class="select">
+              <option value="" selected disabled>Оберіть комбінацію</option>
+              <option value="chemo_urs">Хемолітоліз → URS</option>
+              <option value="chemo_rirs">Хемолітоліз → RIRS</option>
+              <option value="chemo_pcnl">Хемолітоліз → PCNL</option>
+              <option value="chemo_eswl">Хемолітоліз → ESWL</option>
+              <option value="chemo_laparoscopic">Хемолітоліз → Лапароскопічне втручання</option>
+              <option value="chemo_open">Хемолітоліз → Відкрита операція</option>
+            </select>
+          </div>
+
+          <!-- 11) Дата зникнення -->
+          <div class="row hidden" id="disappearanceDateSection">
+            <div class="label"><span class="req">*</span>Дата зникнення</div>
+            <input id="disappearanceDate" name="disappearanceDate" class="input" type="date" required>
+            <div class="helper">Дата фактичного зникнення або підтвердження відходження каменя.</div>
+          </div>
+
+          <!-- 12) Нотатки -->
+          <div class="row">
+            <div class="label">Нотатки</div>
+            <textarea id="notes" name="notes" class="input" rows="4" placeholder="Додаткові коментарі або спостереження про камінь..." style="resize:vertical; min-height:100px; font-family:inherit;"></textarea>
+            <div class="helper">Необов'язкове поле для будь-яких додаткових відміток.</div>
+          </div>
+
+          <div class="row errors" id="errors">
+            <ul id="errorsList"></ul>
+          </div>
+        </div>
+
+        <div class="footer">
+          <button class="btn" type="button" onclick="closeModal()">Відмінити</button>
+          <button class="btn btn-primary" id="saveBtn" type="submit">Зберегти</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    // ==== helpers / params ====
+    function getReturnUrl(){
+      const params = new URLSearchParams(window.location.search);
+      return params.get('return') || 'create-patient.html';
+    }
+    function getEditId(){
+      const params = new URLSearchParams(window.location.search);
+      return params.get('edit'); // stoneId
+    }
+    function closeModal(){
+      window.location.href = getReturnUrl();
+    }
+
+    function makeStoneId(){
+      if (window.crypto && crypto.randomUUID) return crypto.randomUUID();
+      return 'st_' + Date.now() + '_' + Math.random().toString(16).slice(2);
+    }
+
+    function loadStones(){
+      const data = localStorage.getItem('temp_stones');
+      return data ? JSON.parse(data) : [];
+    }
+
+    // ==== data ====
+    const locationsByOrgan = {
+      kidney: [
+        { value: 'upper_calyx', label: 'Верхня чашечка' },
+        { value: 'middle_calyx', label: 'Середня чашечка' },
+        { value: 'lower_calyx', label: 'Нижня чашечка' },
+        { value: 'renal_pelvis', label: 'Миска' },
+        { value: 'upj', label: 'Мисково-сечовідний сегмент (UPJ)' }
+      ],
+      ureter: [
+        { value: 'ureter_proximal', label: 'Проксимальна частина сечоводу' },
+        { value: 'ureter_middle', label: 'Середня частина сечоводу' },
+        { value: 'ureter_distal', label: 'Дистальна частина сечоводу' },
+        { value: 'uvj_orifice', label: 'Вічко (UVJ)' }
+      ],
+      bladder: [
+        { value: 'bladder', label: 'Сечовий міхур' }
+      ]
+    };
+
+    // ==== elements ====
+    const form = document.getElementById('stoneForm');
+    const errorsBox = document.getElementById('errors');
+    const errorsList = document.getElementById('errorsList');
+
+    const organ = document.getElementById('organ');
+    const locationSel = document.getElementById('location');
+    const status = document.getElementById('status');
+    const disappearanceMethod = document.getElementById('disappearanceMethod');
+
+    const disappearanceSection = document.getElementById('disappearanceSection');
+    const chemicalMethodSection = document.getElementById('chemicalMethodSection');
+    const physicalMethodSection = document.getElementById('physicalMethodSection');
+    const combinedMethodSection = document.getElementById('combinedMethodSection');
+    const disappearanceDateSection = document.getElementById('disappearanceDateSection');
+
+    // ==== organ -> locations ====
+    organ.addEventListener('change', () => {
+      const v = organ.value;
+      let locationType = null;
+
+      if (v === 'RK' || v === 'LK') locationType = 'kidney';
+      else if (v === 'RU' || v === 'LU') locationType = 'ureter';
+      else if (v === 'BL') locationType = 'bladder';
+
+      locationSel.innerHTML = '<option value="" selected disabled>Оберіть локалізацію</option>';
+
+      if (locationType && locationsByOrgan[locationType]) {
+        locationsByOrgan[locationType].forEach(loc => {
+          const opt = document.createElement('option');
+          opt.value = loc.value;
+          opt.textContent = loc.label;
+          locationSel.appendChild(opt);
+        });
+      }
+    });
+
+    // ==== status -> show/hide disappearance ====
+    status.addEventListener('change', () => {
+      const v = status.value;
+      const isResolved = (v === 'resolved');
+
+      if (isResolved) {
+        disappearanceSection.classList.remove('hidden');
+        disappearanceDateSection.classList.remove('hidden');
+        disappearanceMethod.setAttribute('required', 'required');
+        document.getElementById('disappearanceDate').setAttribute('required', 'required');
+      } else {
+        disappearanceSection.classList.add('hidden');
+        disappearanceDateSection.classList.add('hidden');
+        chemicalMethodSection.classList.add('hidden');
+        physicalMethodSection.classList.add('hidden');
+        combinedMethodSection.classList.add('hidden');
+
+        disappearanceMethod.removeAttribute('required');
+        document.getElementById('disappearanceDate').removeAttribute('required');
+        document.getElementById('chemicalMethod').removeAttribute('required');
+        document.getElementById('physicalMethod').removeAttribute('required');
+        document.getElementById('combinedMethod').removeAttribute('required');
+
+        disappearanceMethod.value = '';
+        document.getElementById('chemicalMethod').value = '';
+        document.getElementById('physicalMethod').value = '';
+        document.getElementById('combinedMethod').value = '';
+        document.getElementById('disappearanceDate').value = '';
+      }
+    });
+
+    // ==== disappearance method -> show submethods ====
+    disappearanceMethod.addEventListener('change', () => {
+      const v = disappearanceMethod.value;
+
+      chemicalMethodSection.classList.add('hidden');
+      physicalMethodSection.classList.add('hidden');
+      combinedMethodSection.classList.add('hidden');
+
+      document.getElementById('chemicalMethod').removeAttribute('required');
+      document.getElementById('physicalMethod').removeAttribute('required');
+      document.getElementById('combinedMethod').removeAttribute('required');
+
+      document.getElementById('chemicalMethod').value = '';
+      document.getElementById('physicalMethod').value = '';
+      document.getElementById('combinedMethod').value = '';
+
+      if (v === 'chemical') {
+        chemicalMethodSection.classList.remove('hidden');
+        document.getElementById('chemicalMethod').setAttribute('required', 'required');
+      } else if (v === 'physical') {
+        physicalMethodSection.classList.remove('hidden');
+        document.getElementById('physicalMethod').setAttribute('required', 'required');
+      } else if (v === 'combined') {
+        combinedMethodSection.classList.remove('hidden');
+        document.getElementById('combinedMethod').setAttribute('required', 'required');
+      }
+    });
+
+    // ==== edit mode init ====
+    const editId = getEditId();
+
+    function setSelectValue(el, val){
+      if (!el || val == null) return;
+      el.value = val;
+    }
+    function setInputValue(id, val){
+      const el = document.getElementById(id);
+      if (!el) return;
+      el.value = (val == null) ? '' : val;
+    }
+
+    (function initEditMode(){
+      if (!editId) return;
+
+      document.getElementById('pageTitle').textContent = 'Редагування каменя';
+      document.getElementById('saveBtn').textContent = 'Зберегти зміни';
+
+      const stones = loadStones();
+      const stone = stones.find(s => s.id === editId);
+      if (!stone) return;
+
+      setSelectValue(organ, stone.organ);
+      organ.dispatchEvent(new Event('change'));
+      setSelectValue(locationSel, stone.location);
+
+      setInputValue('lenMax', stone.size_mm?.length_max);
+      setInputValue('widMax', stone.size_mm?.width_max);
+
+      setInputValue('huMin', stone.density_hu?.min);
+      setInputValue('huMean', stone.density_hu?.mean);
+      setInputValue('huMax', stone.density_hu?.max);
+
+      setSelectValue(document.getElementById('prognosis'), stone.prognosis);
+      setSelectValue(status, stone.status);
+      setInputValue('notes', stone.notes || '');
+
+      status.dispatchEvent(new Event('change'));
+
+      if (stone.status === 'resolved' && stone.disappearance) {
+        setSelectValue(disappearanceMethod, stone.disappearance.method);
+        disappearanceMethod.dispatchEvent(new Event('change'));
+
+        if (stone.disappearance.method === 'chemical') {
+          setSelectValue(document.getElementById('chemicalMethod'), stone.disappearance.specific_method);
+        } else if (stone.disappearance.method === 'physical') {
+          setSelectValue(document.getElementById('physicalMethod'), stone.disappearance.specific_method);
+        } else if (stone.disappearance.method === 'combined') {
+          setSelectValue(document.getElementById('combinedMethod'), stone.disappearance.specific_method);
+        }
+
+        setInputValue('disappearanceDate', stone.disappearance.date);
+      }
+    })();
+
+    // ==== submit ====
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+
+      const errs = [];
+
+      const lenMax = numVal('lenMax');
+      const widMax = numVal('widMax');
+
+      const huMin = numVal('huMin');
+      const huMean = numVal('huMean');
+      const huMax = numVal('huMax');
+
+      if (!organ.value) errs.push("Оберіть орган.");
+      if (!locationSel.value) errs.push("Оберіть локалізацію каменя.");
+      if (!isFinite(lenMax) || lenMax <= 0) errs.push("Максимальна довжина має бути числом > 0.");
+      if (!isFinite(widMax) || widMax <= 0) errs.push("Максимальна ширина має бути числом > 0.");
+
+      if (isFinite(lenMax) && isFinite(widMax) && widMax > lenMax) {
+        errs.push("Максимальна ширина не може бути більшою за максимальну довжину.");
+      }
+
+      if (!isFinite(huMin)) errs.push("Мінімальна щільність (HU) має бути числом.");
+      if (!isFinite(huMean)) errs.push("Середня щільність (HU) має бути числом.");
+      if (!isFinite(huMax)) errs.push("Максимальна щільність (HU) має бути числом.");
+
+      if (isFinite(huMin) && isFinite(huMean) && isFinite(huMax)) {
+        if (!(huMin <= huMean && huMean <= huMax)) {
+          errs.push("Для щільності має виконуватися: мінімальна ≤ середня ≤ максимальна.");
+        }
+      }
+
+      if (!document.getElementById('prognosis').value) {
+        errs.push("Оберіть прогноз лікаря.");
+      }
+
+      const statusVal = status.value;
+      const isResolved = (statusVal === 'resolved');
+
+      if (isResolved) {
+        if (!disappearanceMethod.value) errs.push("Оберіть метод зникнення каменя.");
+
+        const methodVal = disappearanceMethod.value;
+        if (methodVal === 'chemical' && !document.getElementById('chemicalMethod').value) errs.push("Оберіть конкретний хімічний метод.");
+        if (methodVal === 'physical' && !document.getElementById('physicalMethod').value) errs.push("Оберіть конкретний фізичний метод.");
+        if (methodVal === 'combined' && !document.getElementById('combinedMethod').value) errs.push("Оберіть тип комбінованого методу.");
+
+        if (!document.getElementById('disappearanceDate').value) errs.push("Вкажіть дату зникнення каменя.");
+      }
+
+      renderErrors(errs);
+
+      if (errs.length === 0) {
+        const payload = {
+          id: editId || makeStoneId(),
+          organ: organ.value,
+          location: locationSel.value,
+          size_mm: { length_max: lenMax, width_max: widMax },
+          density_hu: { min: huMin, mean: huMean, max: huMax },
+          prognosis: document.getElementById('prognosis').value,
+          status: statusVal,
+          notes: document.getElementById('notes').value.trim()
+        };
+
+        if (isResolved) {
+          payload.disappearance = {
+            method: disappearanceMethod.value,
+            date: document.getElementById('disappearanceDate').value
+          };
+
+          const methodVal = disappearanceMethod.value;
+          if (methodVal === 'chemical') payload.disappearance.specific_method = document.getElementById('chemicalMethod').value;
+          else if (methodVal === 'physical') payload.disappearance.specific_method = document.getElementById('physicalMethod').value;
+          else if (methodVal === 'combined') payload.disappearance.specific_method = document.getElementById('combinedMethod').value;
+        }
+
+        const existingStones = loadStones();
+
+        if (editId) {
+          const idx = existingStones.findIndex(s => s.id === editId);
+          if (idx !== -1) existingStones[idx] = payload;
+          else existingStones.push(payload);
+        } else {
+          existingStones.push(payload);
+        }
+
+        localStorage.setItem('temp_stones', JSON.stringify(existingStones));
+
+        console.log("SAVE payload:", payload);
+        window.location.href = getReturnUrl();
+      }
+    });
+
+    function numVal(id){
+      const v = document.getElementById(id).value.trim();
+      if (v === '') return NaN;
+      return Number(v);
+    }
+
+    function renderErrors(errs){
+      errorsList.innerHTML = '';
+      if (!errs.length){
+        errorsBox.style.display = 'none';
+        return;
+      }
+      errorsBox.style.display = 'block';
+      for (const msg of errs){
+        const li = document.createElement('li');
+        li.textContent = msg;
+        errorsList.appendChild(li);
+      }
+    }
+  </script>
+</body>
+</html>
