@@ -1,4 +1,4 @@
-<!-- create-patient.html (ГОТОВИЙ ФАЙЛ з переглядом фото в модальному вікні) -->
+<!-- index.html (ГОТОВИЙ ФАЙЛ з переглядом фото в модальному вікні) -->
 <!doctype html>
 <html lang="uk">
 <head>
@@ -619,7 +619,7 @@
   }
 
   function editStone(stoneId) {
-    window.location.href = `add-stone.html?return=create-patient.html&edit=${encodeURIComponent(stoneId)}`;
+    window.location.href = `add-stone.html?return=index.html&edit=${encodeURIComponent(stoneId)}`;
   }
 
   // ===== grouping =====
@@ -737,7 +737,7 @@
   // ===== add stone btn =====
   document.getElementById('addStoneBtn').addEventListener('click', (e) => {
     e.preventDefault();
-    window.location.href = 'add-stone.html?return=create-patient.html';
+    window.location.href = 'add-stone.html?return=index.html';
   });
 
   // ===== Photo Modal Logic =====
