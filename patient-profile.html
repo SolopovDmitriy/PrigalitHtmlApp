@@ -74,24 +74,50 @@
       background:rgba(255,255,255,.06);
     }
 
+   /* badge */
     .info-badge{
       width:28px;
       height:28px;
       border-radius:10px;
-      display:grid;
+      display:inline-grid;
       place-items:center;
       font-size:16px;
       font-weight:900;
       color:#fff;
       cursor:help;
-      background:linear-gradient(
-        135deg,
-        rgba(74,134,255,.9),
-        rgba(60,120,255,.75)
-      );
+      background:linear-gradient(135deg, rgba(74,134,255,.9), rgba(60,120,255,.75));
       box-shadow:0 6px 14px rgba(0,0,0,.25);
+      position:relative;          /* ВАЖЛИВО для tooltip */
       flex-shrink:0;
     }
+
+    /* tooltip */
+    .info-badge[data-tip]::after{
+      content: attr(data-tip);
+      position:absolute;
+      left:50%;
+      top:calc(100% + 8px);
+      transform:translateX(-50%);
+      min-width:220px;
+      max-width:320px;
+      padding:10px 12px;
+      border-radius:12px;
+      border:1px solid rgba(255,255,255,.14);
+      background:rgba(20,28,52,.98);
+      color:rgba(255,255,255,.92);
+      font-size:13px;
+      line-height:1.35;
+      white-space:pre-line;
+      opacity:0;
+      pointer-events:none;
+      z-index:99999;
+      box-shadow:0 14px 40px rgba(0,0,0,.28);
+    }
+
+    .info-badge:hover::after{
+      opacity:1;
+    }
+
 
 
 
