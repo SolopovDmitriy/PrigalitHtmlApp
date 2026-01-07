@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="uk">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Додати пацієнта</title>
+  <link rel="stylesheet" href="assets/styles.css">
+</head>
+<body>
+  <div class="frame">
+    <div class="content">
+      <h1>Додати пацієнта</h1>
+
+      <form id="patientBasicForm" novalidate>
+        <div class="grid">
+          <div class="row">
+            <div class="label"><span class="req">*</span>ПІБ</div>
+            <input class="input" id="fullName" placeholder="Повністю (Прізвище Ім'я По батькові)" required>
+          </div>
+
+          <div>
+            <div class="label"><span class="req">*</span>Дата народження</div>
+            <input class="input" id="dob" type="date" required>
+          </div>
+
+          <div>
+            <div class="label">Медична картка</div>
+            <input class="input" id="chartNo" placeholder="№ / ID карти (за потреби)">
+          </div>
+
+          <div>
+            <div class="label"><span class="req">*</span>Електронна адреса</div>
+            <input class="input" id="email" type="email" placeholder="patient@example.com" required>
+          </div>
+
+          <div>
+            <div class="label"><span class="req">*</span>Телефон</div>
+            <input class="input" id="phone" placeholder="+380..." required>
+          </div>
+
+          <div>
+            <div class="label">Зріст (см)</div>
+            <input class="input" id="heightCm" type="number" inputmode="numeric" min="0" step="1" placeholder="напр. 178">
+          </div>
+
+          <div>
+            <div class="label"><span class="req">*</span>Часовий пояс</div>
+            <select class="select" id="tz" required>
+              <option value="" selected disabled>Оберіть часовий пояс</option>
+              <option value="Europe/Kyiv">Europe/Kyiv (Україна)</option>
+              <option value="Europe/Warsaw">Europe/Warsaw</option>
+              <option value="Europe/Berlin">Europe/Berlin</option>
+              <option value="UTC">UTC</option>
+            </select>
+            <div class="helper">Потрібно для коректних дат/нагадувань та журналювання.</div>
+          </div>
+
+          <div>
+            <div class="label"><span class="req">*</span>Профіль пацієнта</div>
+            <select class="select" id="profile" required>
+              <option value="" selected disabled>Оберіть профіль</option>
+              <option value="urology">Урологічний</option>
+              <option value="cardiology">Кардіологічний</option>
+              <option value="endocrinology">Ендокринологія</option>
+              <option value="rheumatology">Ревматологія</option>
+            </select>
+          </div>
+
+          <div class="row errors" id="errors">
+            <ul id="errorsList"></ul>
+          </div>
+
+          <div class="row toolbar" style="justify-content:flex-end;">
+            <a class="btn" href="index.html" title="Повернутися до списку">← Список</a>
+            <button class="btn btn-primary" type="submit">Зберегти та відкрити профіль</button>
+          </div>
+        </div>
+      </form>
+
+      <div class="helper">
+        Ця форма містить лише незмінні або рідко змінні поля. Решту параметрів (лікування, супутні стани, камені, фото, дати спостереження тощо)
+        вводьте з профілю пацієнта окремими формами.
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { makeId, upsertPatientBasic } from './assets/storage.js';
+
+    const form = document.getElementById('patientBasicForm');
+    const errorsBox = document.getElementById('errors');
+    const errorsList = document.getElementById('errorsList');
+
+    function showErrors(list){
+      errorsList.innerHTML = '';
+      if (!list.length){
+        errorsBox.style.display = 'none';
+        return;
+      }
+      errorsBox.style.display = 'block';
+      list.forEach(msg=>{
+        const li = document.createElement('li');
+        li.textContent = msg;
+        errorsList.appendChild(li);
+      });
+    }
+
+    form.addEventListener('submit', (e)=>{
+      e.preventDefault();
+
+      const errs = [];
+      const fullName = document.getElementById('fullName').value.trim();
+      const dob = document.getElementById('dob').value;
+      const chartNo = document.getElementById('chartNo').value.trim();
+      const email = document.getElementById('email').value.trim();
+      const phone = document.getElementById('phone').value.trim();
+      const heightCm = document.getElementById('heightCm').value.trim();
+      const tz = document.getElementById('tz').value;
+      const profile = document.getElementById('profile').value;
+
+      if (!fullName) errs.push("Вкажіть ПІБ.");
+      if (!dob) errs.push("Вкажіть дату народження.");
+      if (!email) errs.push("Вкажіть електронну адресу.");
+      if (!phone) errs.push("Вкажіть телефон.");
+      if (!tz) errs.push("Оберіть часовий пояс.");
+      if (!profile) errs.push("Оберіть профіль пацієнта.");
+
+      showErrors(errs);
+      if (errs.length) return;
+
+      const patient = {
+        id: makeId('pt'),
+        full_name: fullName,
+        date_of_birth: dob,
+        medical_chart: chartNo || null,
+        email,
+        phone,
+        height_cm: heightCm ? Number(heightCm) : null,
+        timezone: tz,
+        profile
+      };
+
+      upsertPatientBasic(patient);
+      window.location.href = `patient-profile.html?patient=${encodeURIComponent(patient.id)}`;
+    });
+  </script>
+</body>
+</html>

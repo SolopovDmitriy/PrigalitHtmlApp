@@ -1,0 +1,324 @@
+<!doctype html>
+<html lang="uk">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Діагностика каменів</title>
+  <style>
+    :root{
+      --bg1:#6f8fb9;
+      --bg2:#3459b6;
+      --stroke:rgba(255,255,255,.14);
+      --text:rgba(255,255,255,.92);
+      --muted:rgba(255,255,255,.72);
+      --danger:#ff6a5f;
+      --shadow:0 30px 90px rgba(0,0,0,.25);
+    }
+    *{ box-sizing:border-box; }
+
+    body{
+      margin:0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      background:
+        radial-gradient(1200px 600px at 20% 10%, rgba(255,255,255,.22), transparent 50%),
+        linear-gradient(180deg, var(--bg1), var(--bg2));
+      color:var(--text);
+      min-height:100vh;
+      padding:22px;
+    }
+
+    .frame{
+      width:min(1500px, 100%);
+      margin:0 auto;
+      background:rgba(255,255,255,.06);
+      border:1px solid rgba(255,255,255,.10);
+      border-radius:22px;
+      box-shadow:var(--shadow);
+      padding:18px;
+    }
+
+    .content{
+      background:rgba(255,255,255,.06);
+      border:1px solid rgba(255,255,255,.10);
+      border-radius:22px;
+      padding:26px;
+      max-height: 640px;
+      overflow:auto;
+    }
+
+    .header{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:14px;
+      margin-bottom:18px;
+    }
+
+    h1{
+      font-size:44px;
+      font-weight:800;
+      letter-spacing:.2px;
+      margin:0;
+      text-shadow:0 2px 14px rgba(0,0,0,.18);
+    }
+
+    .close{
+      border:1px solid rgba(255,255,255,.18);
+      background:rgba(255,255,255,.08);
+      color:rgba(255,255,255,.90);
+      width:44px;
+      height:44px;
+      border-radius:14px;
+      cursor:pointer;
+      font-size:22px;
+      display:grid;
+      place-items:center;
+    }
+    .close:hover{ background:rgba(255,255,255,.12); }
+
+    .info-badge{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:10px 16px;
+      border-radius:12px;
+      background:rgba(74,134,255,.15);
+      border:1px solid rgba(74,134,255,.25);
+      font-size:15px;
+      margin-bottom:20px;
+    }
+
+    .grid{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:18px 22px;
+    }
+
+    .row{ grid-column:1 / -1; }
+
+    .label{
+      font-size:18px;
+      font-weight:700;
+      margin-bottom:10px;
+      display:flex;
+      align-items:center;
+      gap:8px;
+    }
+    .req{ color:var(--danger); font-weight:900; }
+
+    .input, .select{
+      width:100%;
+      border:1px solid var(--stroke);
+      background:rgba(255,255,255,.08);
+      color:var(--text);
+      border-radius:12px;
+      padding:14px 16px;
+      font-size:18px;
+      outline:none;
+    }
+    .input::placeholder{ color:rgba(255,255,255,.55); }
+    .select option{ color:#0f172a; }
+
+    .helper{
+      font-size:14px;
+      color:rgba(255,255,255,.70);
+      margin-top:8px;
+      line-height:1.35;
+    }
+
+    .subgrid-2{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:12px;
+    }
+
+    .footer{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:12px;
+      margin-top:18px;
+      padding-top:16px;
+      border-top:1px solid rgba(255,255,255,.12);
+    }
+
+    .btn{
+      border:1px solid rgba(255,255,255,.18);
+      background:rgba(255,255,255,.08);
+      color:rgba(255,255,255,.92);
+      padding:14px 18px;
+      border-radius:14px;
+      cursor:pointer;
+      font-weight:800;
+      font-size:16px;
+      min-width:140px;
+    }
+    .btn:hover{ background:rgba(255,255,255,.12); }
+
+    .btn-primary{
+      border-color:rgba(255,255,255,.22);
+      background:linear-gradient(180deg, rgba(74,134,255,.65), rgba(60,120,255,.40));
+      box-shadow:0 10px 22px rgba(0,0,0,.18);
+    }
+    .btn-primary:hover{ filter:brightness(1.05); }
+
+    .version-info{
+      font-size:14px;
+      color:rgba(255,255,255,.65);
+    }
+
+    @media (max-width: 980px){
+      .grid{ grid-template-columns:1fr; }
+      .subgrid-2{ grid-template-columns:1fr; }
+      h1{ font-size:34px; }
+      .footer{ flex-direction:column; }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="frame">
+    <div class="content">
+      <div class="header">
+        <h1>Діагностика каменів</h1>
+        <button class="close" type="button" aria-label="Закрити" onclick="closeForm()">×</button>
+      </div>
+
+      <div class="info-badge">
+        ℹ️ Ця форма версіонується — кожне збереження створює нову версію діагностичних даних
+      </div>
+
+      <form id="diagnosticsForm" novalidate>
+        <div class="grid">
+
+          <!-- Розмір каменя -->
+          <div class="row">
+            <div class="label"><span class="req">*</span>Розмір каменя, мм</div>
+            <div class="subgrid-2">
+              <div>
+                <div class="label" style="font-size:16px;margin-bottom:10px;">Довжина</div>
+                <input id="stoneLength" type="number" class="input" step="0.1" min="0" placeholder="напр. 8.5" required>
+              </div>
+              <div>
+                <div class="label" style="font-size:16px;margin-bottom:10px;">Ширина</div>
+                <input id="stoneWidth" type="number" class="input" step="0.1" min="0" placeholder="напр. 5.2" required>
+              </div>
+            </div>
+            <div class="helper">Змінюється при контрольних УЗД/КТ обстеженнях</div>
+          </div>
+
+          <!-- Тип каменя -->
+          <div class="row">
+            <div class="label"><span class="req">*</span>Тип каменя</div>
+            <select id="stoneType" class="select" required>
+              <option value="" selected disabled>Оберіть тип каменя</option>
+              <option value="urate">Уратний</option>
+              <option value="urate_oxalate">Уратно-оксалатний</option>
+              <option value="oxalate">Оксалатний</option>
+              <option value="phosphate">Фосфатний</option>
+              <option value="cystine">Цистиновий</option>
+              <option value="mixed">Змішаний</option>
+              <option value="unknown">Невизначений</option>
+            </select>
+            <div class="helper">Може уточнюватися після лабораторних аналізів</div>
+          </div>
+
+          <!-- Локалізація -->
+          <div class="row">
+            <div class="label"><span class="req">*</span>Локалізація каменя</div>
+            <select id="stoneLocation" class="select" required>
+              <option value="" selected disabled>Оберіть локалізацію</option>
+              <optgroup label="Нирки">
+                <option value="kidney_right_upper">Права нирка - верхня чашечка</option>
+                <option value="kidney_right_middle">Права нирка - середня чашечка</option>
+                <option value="kidney_right_lower">Права нирка - нижня чашечка</option>
+                <option value="kidney_right_pelvis">Права нирка - миска</option>
+                <option value="kidney_left_upper">Ліва нирка - верхня чашечка</option>
+                <option value="kidney_left_middle">Ліва нирка - середня чашечка</option>
+                <option value="kidney_left_lower">Ліва нирка - нижня чашечка</option>
+                <option value="kidney_left_pelvis">Ліва нирка - миска</option>
+              </optgroup>
+              <optgroup label="Сечоводи">
+                <option value="ureter_right_upper">Правий сечовід - верхня третина</option>
+                <option value="ureter_right_middle">Правий сечовід - середня третина</option>
+                <option value="ureter_right_lower">Правий сечовід - нижня третина</option>
+                <option value="ureter_left_upper">Лівий сечовід - верхня третина</option>
+                <option value="ureter_left_middle">Лівий сечовід - середня третина</option>
+                <option value="ureter_left_lower">Лівий сечовід - нижня третина</option>
+              </optgroup>
+              <optgroup label="Інше">
+                <option value="bladder">Сечовий міхур</option>
+              </optgroup>
+            </select>
+          </div>
+
+          <!-- Дата обстеження -->
+          <div class="row">
+            <div class="label"><span class="req">*</span>Дата останнього обстеження</div>
+            <input id="examDate" type="date" class="input" required>
+            <div class="helper">Дата проведення УЗД або КТ обстеження</div>
+          </div>
+
+        </div>
+
+        <div class="footer">
+          <div class="version-info">
+            Версія: <strong id="versionNumber">нова</strong>
+          </div>
+          <div>
+            <button class="btn" type="button" onclick="closeForm()">Відмінити</button>
+            <button class="btn btn-primary" type="submit">Зберегти версію</button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    const form = document.getElementById('diagnosticsForm');
+    const versionNumber = document.getElementById('versionNumber');
+
+    // Встановити поточну дату за замовчуванням
+    document.getElementById('examDate').valueAsDate = new Date();
+
+    function closeForm() {
+      window.history.back();
+    }
+
+    // Завантажити існуючі версії
+    function loadVersions() {
+      const data = localStorage.getItem('patient_diagnostics_versions');
+      return data ? JSON.parse(data) : [];
+    }
+
+    // Показати номер наступної версії
+    const versions = loadVersions();
+    versionNumber.textContent = `#${versions.length + 1}`;
+
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+
+      const diagnosticsData = {
+        version: versions.length + 1,
+        stoneSize: {
+          length: parseFloat(document.getElementById('stoneLength').value),
+          width: parseFloat(document.getElementById('stoneWidth').value)
+        },
+        stoneType: document.getElementById('stoneType').value,
+        location: document.getElementById('stoneLocation').value,
+        examDate: document.getElementById('examDate').value,
+        createdAt: new Date().toISOString()
+      };
+
+      // Додати нову версію
+      versions.push(diagnosticsData);
+      localStorage.setItem('patient_diagnostics_versions', JSON.stringify(versions));
+
+      console.log('Diagnostics saved:', diagnosticsData);
+      alert(`Діагностичні дані (версія #${diagnosticsData.version}) успішно збережено!`);
+      
+      closeForm();
+    });
+  </script>
+</body>
+</html>

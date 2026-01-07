@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="uk">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Параметри лікування</title>
+  <link rel="stylesheet" href="assets/styles.css">
+</head>
+<body>
+  <div class="frame">
+    <div class="content">
+      <h1>Параметри лікування</h1>
+
+      <div class="helper" id="subtitle"></div>
+
+      <form id="form" novalidate>
+        <div class="grid">
+          <div class="row">
+            <div class="label"><span class="req">*</span>Тип лікування</div>
+            <select class="select" id="treatmentType" required>
+              <option value="" selected disabled>Оберіть тип</option>
+              <option value="treatment">Лікування</option>
+              <option value="prevention">Профілактика</option>
+            </select>
+          </div>
+
+          <div class="row">
+            <div class="label"><span class="req">*</span>Тип каменю</div>
+            <select class="select" id="stoneType" required>
+              <option value="" selected disabled>Оберіть тип</option>
+              <option value="urate">Уратний</option>
+              <option value="urate_oxalate">Уратно-оксалатний</option>
+              <option value="unknown">Невідомо</option>
+            </select>
+          </div>
+
+          <div class="row">
+            <div class="label"><span class="req">*</span>Дата початку спостереження</div>
+            <input type="date" class="input" id="startDate" required>
+          </div>
+
+          <div class="row errors" id="errors"><ul id="errorsList"></ul></div>
+
+          <div class="row toolbar" style="justify-content:flex-end;">
+            <a class="btn" id="backBtn" href="#">← Назад у профіль</a>
+            <button class="btn btn-primary" type="submit">Зберегти</button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script type="module">
+    import { qs, getPatientById, loadPatientExtras, savePatientExtras } from './assets/storage.js';
+
+    const patientId = qs('patient');
+    const patient = patientId ? getPatientById(patientId) : null;
+
+    document.getElementById('backBtn').href = `patient-profile.html?patient=${encodeURIComponent(patientId||'')}`;
+    document.getElementById('subtitle').textContent = patient ? `Пацієнт: ${patient.full_name}` : '';
+
+    const extras = patientId ? loadPatientExtras(patientId) : {};
+    document.getElementById('treatmentType').value = extras.treatment_type || '';
+    document.getElementById('stoneType').value = extras.stone_type || '';
+    document.getElementById('startDate').value = extras.start_date || '';
+
+    const form = document.getElementById('form');
+    const errorsBox = document.getElementById('errors');
+    const errorsList = document.getElementById('errorsList');
+
+    function showErrors(list){
+      errorsList.innerHTML = '';
+      if (!list.length){
+        errorsBox.style.display = 'none';
+        return;
+      }
+      errorsBox.style.display = 'block';
+      list.forEach(msg=>{
+        const li = document.createElement('li');
+        li.textContent = msg;
+        errorsList.appendChild(li);
+      });
+    }
+
+    form.addEventListener('submit', (e)=>{
+      e.preventDefault();
+      const errs = [];
+
+      const treatmentType = document.getElementById('treatmentType').value;
+      const stoneType = document.getElementById('stoneType').value;
+      const startDate = document.getElementById('startDate').value;
+
+      if (!patientId) errs.push("Немає patient id у URL.");
+      if (!treatmentType) errs.push("Оберіть тип лікування.");
+      if (!stoneType) errs.push("Оберіть тип каменю.");
+      if (!startDate) errs.push("Вкажіть дату початку спостереження.");
+
+      showErrors(errs);
+      if (errs.length) return;
+
+      const next = loadPatientExtras(patientId);
+      next.treatment_type = treatmentType;
+      next.stone_type = stoneType;
+      next.start_date = startDate;
+
+      savePatientExtras(patientId, next);
+      window.location.href = `patient-profile.html?patient=${encodeURIComponent(patientId)}`;
+    });
+  </script>
+</body>
+</html>

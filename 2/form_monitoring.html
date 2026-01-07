@@ -1,0 +1,463 @@
+<!doctype html>
+<html lang="uk">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Моніторинг показників</title>
+  <style>
+    :root{
+      --bg1:#6f8fb9;
+      --bg2:#3459b6;
+      --stroke:rgba(255,255,255,.14);
+      --text:rgba(255,255,255,.92);
+      --muted:rgba(255,255,255,.72);
+      --danger:#ff6a5f;
+      --success:#4ade80;
+      --shadow:0 30px 90px rgba(0,0,0,.25);
+    }
+    *{ box-sizing:border-box; }
+
+    body{
+      margin:0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      background:
+        radial-gradient(1200px 600px at 20% 10%, rgba(255,255,255,.22), transparent 50%),
+        linear-gradient(180deg, var(--bg1), var(--bg2));
+      color:var(--text);
+      min-height:100vh;
+      padding:22px;
+    }
+
+    .frame{
+      width:min(1500px, 100%);
+      margin:0 auto;
+      background:rgba(255,255,255,.06);
+      border:1px solid rgba(255,255,255,.10);
+      border-radius:22px;
+      box-shadow:var(--shadow);
+      padding:18px;
+    }
+
+    .content{
+      background:rgba(255,255,255,.06);
+      border:1px solid rgba(255,255,255,.10);
+      border-radius:22px;
+      padding:26px;
+      max-height: 640px;
+      overflow:auto;
+    }
+
+    .header{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:14px;
+      margin-bottom:18px;
+    }
+
+    h1{
+      font-size:44px;
+      font-weight:800;
+      letter-spacing:.2px;
+      margin:0;
+      text-shadow:0 2px 14px rgba(0,0,0,.18);
+    }
+
+    .close{
+      border:1px solid rgba(255,255,255,.18);
+      background:rgba(255,255,255,.08);
+      color:rgba(255,255,255,.90);
+      width:44px;
+      height:44px;
+      border-radius:14px;
+      cursor:pointer;
+      font-size:22px;
+      display:grid;
+      place-items:center;
+    }
+    .close:hover{ background:rgba(255,255,255,.12); }
+
+    .section{
+      margin-bottom:28px;
+    }
+
+    h2{
+      font-size:24px;
+      font-weight:800;
+      margin:0 0 16px;
+      padding-bottom:10px;
+      border-bottom:1px solid rgba(255,255,255,.12);
+    }
+
+    .param-card{
+      padding:20px;
+      border-radius:14px;
+      border:1px solid rgba(255,255,255,.12);
+      background:rgba(255,255,255,.06);
+      margin-bottom:16px;
+    }
+
+    .label{
+      font-size:18px;
+      font-weight:700;
+      margin-bottom:12px;
+      display:flex;
+      align-items:center;
+      gap:8px;
+    }
+    .req{ color:var(--danger); font-weight:900; }
+
+    .input, .select{
+      width:100%;
+      border:1px solid var(--stroke);
+      background:rgba(255,255,255,.08);
+      color:var(--text);
+      border-radius:12px;
+      padding:14px 16px;
+      font-size:18px;
+      outline:none;
+    }
+    .input::placeholder{ color:rgba(255,255,255,.55); }
+
+    .helper{
+      font-size:14px;
+      color:rgba(255,255,255,.70);
+      margin-top:8px;
+      line-height:1.35;
+    }
+
+    .range-inputs{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:16px;
+      margin-top:12px;
+    }
+
+    .range-value{
+      display:flex;
+      align-items:center;
+      gap:10px;
+    }
+
+    .range-label{
+      font-size:15px;
+      font-weight:700;
+      min-width:80px;
+    }
+
+    .visual-range{
+      margin-top:16px;
+      padding:16px;
+      border-radius:10px;
+      background:rgba(255,255,255,.04);
+      border:1px solid rgba(255,255,255,.08);
+    }
+
+    .range-bar{
+      height:40px;
+      background:linear-gradient(90deg, 
+        var(--danger) 0%, 
+        var(--danger) 20%, 
+        var(--success) 40%, 
+        var(--success) 60%, 
+        var(--danger) 80%, 
+        var(--danger) 100%);
+      border-radius:8px;
+      position:relative;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      padding:0 12px;
+      font-weight:800;
+      font-size:14px;
+    }
+
+    .range-marker{
+      position:absolute;
+      width:3px;
+      height:100%;
+      background:white;
+      box-shadow:0 0 10px rgba(0,0,0,.4);
+    }
+
+    .toggle-wrapper{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:16px;
+      margin-top:12px;
+    }
+
+    .toggle-label{
+      font-size:16px;
+      font-weight:600;
+    }
+
+    .toggle-switch{
+      position:relative;
+      width:60px;
+      height:32px;
+      flex-shrink:0;
+    }
+
+    .toggle-switch input{
+      opacity:0;
+      width:0;
+      height:0;
+    }
+
+    .toggle-slider{
+      position:absolute;
+      cursor:pointer;
+      inset:0;
+      background:rgba(255,255,255,.15);
+      border-radius:32px;
+      transition:.3s;
+    }
+
+    .toggle-slider:before{
+      position:absolute;
+      content:"";
+      height:24px;
+      width:24px;
+      left:4px;
+      bottom:4px;
+      background:white;
+      border-radius:50%;
+      transition:.3s;
+    }
+
+    input:checked + .toggle-slider{
+      background:#4a86ff;
+    }
+
+    input:checked + .toggle-slider:before{
+      transform:translateX(28px);
+    }
+
+    .disabled-overlay{
+      opacity:.4;
+      pointer-events:none;
+    }
+
+    .footer{
+      display:flex;
+      justify-content:flex-end;
+      gap:12px;
+      margin-top:18px;
+      padding-top:16px;
+      border-top:1px solid rgba(255,255,255,.12);
+    }
+
+    .btn{
+      border:1px solid rgba(255,255,255,.18);
+      background:rgba(255,255,255,.08);
+      color:rgba(255,255,255,.92);
+      padding:14px 18px;
+      border-radius:14px;
+      cursor:pointer;
+      font-weight:800;
+      font-size:16px;
+      min-width:140px;
+    }
+    .btn:hover{ background:rgba(255,255,255,.12); }
+
+    .btn-primary{
+      border-color:rgba(255,255,255,.22);
+      background:linear-gradient(180deg, rgba(74,134,255,.65), rgba(60,120,255,.40));
+      box-shadow:0 10px 22px rgba(0,0,0,.18);
+    }
+    .btn-primary:hover{ filter:brightness(1.05); }
+
+    @media (max-width: 980px){
+      .range-inputs{ grid-template-columns:1fr; }
+      h1{ font-size:34px; }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="frame">
+    <div class="content">
+      <div class="header">
+        <h1>Моніторинг показників</h1>
+        <button class="close" type="button" aria-label="Закрити" onclick="closeForm()">×</button>
+      </div>
+
+      <form id="monitoringForm" novalidate>
+        
+        <!-- Секція 1: Артеріальний тиск -->
+        <div class="section">
+          <h2>🩺 Артеріальний тиск</h2>
+          <div class="param-card">
+            <div class="label"><span class="req">*</span>Допустима верхня межа систолічного тиску</div>
+            <input id="maxSystolic" type="number" class="input" placeholder="напр. 140" min="100" max="200" step="1" required>
+            <div class="helper">Нормальні значення: 110-130 мм рт. ст. При перевищенні надійде сповіщення.</div>
+          </div>
+        </div>
+
+        <!-- Секція 2: pH сечі -->
+        <div class="section">
+          <h2>🧪 Рівень pH сечі</h2>
+          
+          <div class="param-card">
+            <div class="toggle-wrapper">
+              <div class="toggle-label">Встановлення діапазону pH вручну</div>
+              <label class="toggle-switch">
+                <input type="checkbox" id="manualPhRange" onchange="togglePhRange()">
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+            <div class="helper">Увімкніть для налаштування індивідуального діапазону pH</div>
+          </div>
+
+          <div id="phRangeSection" class="param-card disabled-overlay">
+            <div class="label"><span class="req">*</span>Цільовий діапазон pH</div>
+            
+            <div class="range-inputs">
+              <div class="range-value">
+                <span class="range-label">Нижня межа:</span>
+                <input id="phMin" type="number" class="input" placeholder="6.2" min="4.5" max="8.5" step="0.1" value="6.2">
+              </div>
+              <div class="range-value">
+                <span class="range-label">Верхня межа:</span>
+                <input id="phMax" type="number" class="input" placeholder="6.8" min="4.5" max="8.5" step="0.1" value="6.8">
+              </div>
+            </div>
+
+            <div class="visual-range">
+              <div class="range-bar">
+                <span>4.5</span>
+                <div id="minMarker" class="range-marker" style="left:30%"></div>
+                <div id="maxMarker" class="range-marker" style="left:50%"></div>
+                <span>8.5</span>
+              </div>
+              <div class="helper" style="margin-top:8px; text-align:center;">
+                Рекомендований діапазон для уратних каменів: 6.2-6.8
+              </div>
+            </div>
+          </div>
+
+          <div class="param-card">
+            <div class="toggle-wrapper">
+              <div class="toggle-label">Нагадування про вимірювання pH</div>
+              <label class="toggle-switch">
+                <input type="checkbox" id="phReminder" checked>
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+            <div class="helper">Отримувати нагадування про регулярне вимірювання pH сечі</div>
+          </div>
+        </div>
+
+        <div class="footer">
+          <button class="btn" type="button" onclick="closeForm()">Відмінити</button>
+          <button class="btn btn-primary" type="submit">Зберегти налаштування</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    const form = document.getElementById('monitoringForm');
+    const phRangeSection = document.getElementById('phRangeSection');
+    const manualPhRange = document.getElementById('manualPhRange');
+    const phMin = document.getElementById('phMin');
+    const phMax = document.getElementById('phMax');
+    const minMarker = document.getElementById('minMarker');
+    const maxMarker = document.getElementById('maxMarker');
+
+    function closeForm() {
+      window.history.back();
+    }
+
+    // Перемикання ручного діапазону pH
+    function togglePhRange() {
+      if (manualPhRange.checked) {
+        phRangeSection.classList.remove('disabled-overlay');
+        phMin.required = true;
+        phMax.required = true;
+      } else {
+        phRangeSection.classList.add('disabled-overlay');
+        phMin.required = false;
+        phMax.required = false;
+      }
+    }
+
+    // Оновлення візуальних маркерів
+    function updatePhMarkers() {
+      const min = parseFloat(phMin.value) || 6.2;
+      const max = parseFloat(phMax.value) || 6.8;
+      
+      // Конвертація значень pH в відсотки позиції (4.5-8.5 = 0-100%)
+      const minPercent = ((min - 4.5) / 4.0) * 100;
+      const maxPercent = ((max - 4.5) / 4.0) * 100;
+      
+      minMarker.style.left = `${minPercent}%`;
+      maxMarker.style.left = `${maxPercent}%`;
+    }
+
+    phMin.addEventListener('input', updatePhMarkers);
+    phMax.addEventListener('input', updatePhMarkers);
+
+    // Завантажити збережені налаштування
+    function loadSettings() {
+      const data = localStorage.getItem('monitoring_settings');
+      if (data) {
+        const settings = JSON.parse(data);
+        
+        document.getElementById('maxSystolic').value = settings.bloodPressure.maxSystolic || 140;
+        
+        if (settings.ph.manualRange) {
+          manualPhRange.checked = true;
+          togglePhRange();
+          phMin.value = settings.ph.min || 6.2;
+          phMax.value = settings.ph.max || 6.8;
+          updatePhMarkers();
+        }
+        
+        document.getElementById('phReminder').checked = settings.ph.reminder !== false;
+      }
+    }
+
+    // Зберегти налаштування
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+
+      const minVal = parseFloat(phMin.value);
+      const maxVal = parseFloat(phMax.value);
+
+      // Валідація pH діапазону
+      if (manualPhRange.checked && minVal >= maxVal) {
+        alert('Нижня межа pH має бути менше верхньої межі');
+        return;
+      }
+
+      const monitoringData = {
+        bloodPressure: {
+          maxSystolic: parseInt(document.getElementById('maxSystolic').value)
+        },
+        ph: {
+          manualRange: manualPhRange.checked,
+          min: manualPhRange.checked ? minVal : 6.2,
+          max: manualPhRange.checked ? maxVal : 6.8,
+          reminder: document.getElementById('phReminder').checked
+        },
+        updatedAt: new Date().toISOString()
+      };
+
+      localStorage.setItem('monitoring_settings', JSON.stringify(monitoringData));
+
+      console.log('Monitoring settings saved:', monitoringData);
+      alert('Налаштування моніторингу успішно збережено!');
+      
+      closeForm();
+    });
+
+    // Ініціалізація
+    loadSettings();
+    updatePhMarkers();
+    window.togglePhRange = togglePhRange;
+  </script>
+</body>
+</html>

@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="uk">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Супутні стани</title>
+  <link rel="stylesheet" href="assets/styles.css">
+</head>
+<body>
+  <div class="frame">
+    <div class="content">
+      <h1>Супутні стани</h1>
+      <div class="helper" id="subtitle"></div>
+
+      <form id="form" novalidate>
+        <div class="grid">
+          <div class="row">
+            <div class="label">Оберіть зі списку</div>
+            <div class="card">
+              <label style="display:flex; gap:10px; align-items:center; margin:10px 0;">
+                <input type="checkbox" id="gout"> <span>Подагра</span>
+              </label>
+              <label style="display:flex; gap:10px; align-items:center; margin:10px 0;">
+                <input type="checkbox" id="diabetes1"> <span>Діабет 1 типу</span>
+              </label>
+              <label style="display:flex; gap:10px; align-items:center; margin:10px 0;">
+                <input type="checkbox" id="hypertension"> <span>Гіпертензія</span>
+              </label>
+
+              <div style="margin-top:14px;">
+                <div class="label" style="font-size:16px;">Свій варіант</div>
+                <textarea class="input" id="custom" rows="3" placeholder="Напр.: Гіперпаратиреоз, ХНН, ..."></textarea>
+              </div>
+            </div>
+          </div>
+
+          <div class="row toolbar" style="justify-content:flex-end;">
+            <a class="btn" id="backBtn" href="#">← Назад у профіль</a>
+            <button class="btn btn-primary" type="submit">Зберегти</button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script type="module">
+    import { qs, getPatientById, loadPatientExtras, savePatientExtras } from './assets/storage.js';
+
+    const patientId = qs('patient');
+    const patient = patientId ? getPatientById(patientId) : null;
+    document.getElementById('backBtn').href = `patient-profile.html?patient=${encodeURIComponent(patientId||'')}`;
+    document.getElementById('subtitle').textContent = patient ? `Пацієнт: ${patient.full_name}` : '';
+
+    const extras = patientId ? loadPatientExtras(patientId) : {};
+    const cond = extras.conditions || {};
+    document.getElementById('gout').checked = !!cond.gout;
+    document.getElementById('diabetes1').checked = !!cond.diabetes1;
+    document.getElementById('hypertension').checked = !!cond.hypertension;
+    document.getElementById('custom').value = (cond.custom || '');
+
+    document.getElementById('form').addEventListener('submit', (e)=>{
+      e.preventDefault();
+      if (!patientId) return alert('Немає patient id у URL.');
+
+      const next = loadPatientExtras(patientId);
+      next.conditions = {
+        gout: document.getElementById('gout').checked,
+        diabetes1: document.getElementById('diabetes1').checked,
+        hypertension: document.getElementById('hypertension').checked,
+        custom: document.getElementById('custom').value.trim()
+      };
+
+      savePatientExtras(patientId, next);
+      window.location.href = `patient-profile.html?patient=${encodeURIComponent(patientId)}`;
+    });
+  </script>
+</body>
+</html>

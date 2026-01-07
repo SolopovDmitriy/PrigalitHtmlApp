@@ -371,9 +371,18 @@
 
   <script>
     // ==== helpers / params ====
+    function getPatientId(){
+      const params = new URLSearchParams(window.location.search);
+      return params.get('patient') || '';
+    }
+    function stonesKey(){
+      const pid = getPatientId();
+      return pid ? `temp_stones_v1__${pid}` : 'temp_stones_v1__NO_PATIENT';
+    }
+
     function getReturnUrl(){
       const params = new URLSearchParams(window.location.search);
-      return params.get('return') || 'create-patient.html';
+      return params.get('return') || (params.get('patient') ? `patient-profile.html?patient=${encodeURIComponent(params.get('patient'))}` : 'patients-list.html');
     }
     function getEditId(){
       const params = new URLSearchParams(window.location.search);
@@ -389,7 +398,7 @@
     }
 
     function loadStones(){
-      const data = localStorage.getItem('temp_stones');
+      const data = localStorage.getItem(stonesKey());
       return data ? JSON.parse(data) : [];
     }
 
@@ -651,7 +660,7 @@
           existingStones.push(payload);
         }
 
-        localStorage.setItem('temp_stones', JSON.stringify(existingStones));
+        localStorage.setItem(stonesKey(), JSON.stringify(existingStones));
 
         console.log("SAVE payload:", payload);
         window.location.href = getReturnUrl();

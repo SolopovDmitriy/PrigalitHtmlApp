@@ -1,0 +1,907 @@
+<!-- index.html (ГОТОВИЙ ФАЙЛ з переглядом фото в модальному вікні) -->
+<!doctype html>
+<html lang="uk">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Створити нового пацієнта</title>
+
+  <style>
+    :root{
+      --bg1:#6f8fb9;
+      --bg2:#3459b6;
+      --panel:rgba(255,255,255,.06);
+      --stroke:rgba(255,255,255,.14);
+      --text:rgba(255,255,255,.92);
+      --muted:rgba(255,255,255,.72);
+      --btn:#4a86ff;
+      --btn2:#3c78ff;
+      --radius:18px;
+      --shadow:0 30px 90px rgba(0,0,0,.25);
+      --danger:#ff6a5f;
+    }
+    *{ box-sizing:border-box; }
+
+    body{
+      margin:0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      background:
+        radial-gradient(1200px 600px at 20% 10%, rgba(255,255,255,.22), transparent 50%),
+        linear-gradient(180deg, var(--bg1), var(--bg2));
+      color:var(--text);
+      min-height:100vh;
+      padding:22px;
+    }
+
+    .frame{
+      width:min(1500px, 100%);
+      margin:0 auto;
+      background:rgba(255,255,255,.06);
+      border:1px solid rgba(255,255,255,.10);
+      border-radius:22px;
+      box-shadow:var(--shadow);
+      padding:18px;
+    }
+
+    .content{
+      background:rgba(255,255,255,.06);
+      border:1px solid rgba(255,255,255,.10);
+      border-radius:22px;
+      padding:26px;
+      max-height: 640px;
+      overflow:auto;
+    }
+
+    h1{
+      font-size:44px;
+      font-weight:800;
+      margin:0 0 22px;
+      text-shadow:0 2px 14px rgba(0,0,0,.18);
+    }
+
+    .grid{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:18px 22px;
+    }
+
+    .label{
+      font-size:18px;
+      font-weight:700;
+      margin-bottom:10px;
+      display:flex;
+      align-items:center;
+      gap:8px;
+    }
+    .req{ color:var(--danger); }
+
+    .input, .select{
+      width:100%;
+      border:1px solid var(--stroke);
+      background:rgba(255,255,255,.08);
+      color:var(--text);
+      border-radius:12px;
+      padding:14px 16px;
+      font-size:18px;
+      outline:none;
+    }
+
+    .seg{
+      display:flex;
+      border:1px solid var(--stroke);
+      border-radius:12px;
+      overflow:hidden;
+      background:rgba(255,255,255,.06);
+    }
+    .seg button{
+      flex:1;
+      border:0;
+      background:transparent;
+      color:var(--text);
+      font-size:18px;
+      padding:14px;
+      cursor:pointer;
+    }
+    .seg button.active{
+      background:#fff;
+      color:#0f172a;
+      font-weight:800;
+    }
+
+    /* Камені */
+    .stones-wrap{
+      grid-column:1 / -1;
+      margin-top:6px;
+    }
+    .stones-groups{
+      display:flex;
+      flex-direction:column;
+      gap:18px;
+      margin-bottom:14px;
+    }
+
+    .stone-group{
+      border:1px solid rgba(255,255,255,.14);
+      border-radius:14px;
+      background:rgba(255,255,255,.04);
+      overflow:hidden;
+    }
+
+    .group-header{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      padding:16px 20px;
+      cursor:pointer;
+      background:rgba(255,255,255,.08);
+      border-bottom:1px solid rgba(255,255,255,.10);
+      transition:background .2s;
+    }
+    .group-header:hover{ background:rgba(255,255,255,.12); }
+
+    .group-title{
+      display:flex;
+      align-items:center;
+      gap:12px;
+      font-size:20px;
+      font-weight:800;
+    }
+
+    .group-count{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      min-width:32px;
+      height:32px;
+      padding:0 10px;
+      border-radius:10px;
+      background:rgba(255,255,255,.14);
+      font-size:15px;
+      font-weight:900;
+    }
+
+    .group-toggle{
+      font-size:24px;
+      transition:transform .3s;
+      user-select:none;
+    }
+    .group-toggle.collapsed{ transform:rotate(-90deg); }
+
+    .group-content{
+      display:flex;
+      flex-direction:column;
+      gap:12px;
+      padding:16px;
+      max-height:1000px;
+      transition:max-height .3s ease, padding .3s ease;
+      overflow:hidden;
+    }
+    .group-content.collapsed{
+      max-height:0;
+      padding:0 16px;
+    }
+
+    .stone-card{
+      display:flex;
+      align-items:center;
+      gap:18px;
+      padding:18px 22px;
+      border-radius:12px;
+      border:1px solid rgba(255,255,255,.12);
+      background:rgba(255,255,255,.06);
+    }
+
+    .stone-number{
+      width:48px;
+      height:48px;
+      border-radius:12px;
+      background:linear-gradient(135deg, rgba(74,134,255,.55), rgba(60,120,255,.35));
+      display:grid;
+      place-items:center;
+      font-size:26px;
+      font-weight:900;
+      flex-shrink:0;
+    }
+
+    .stone-info{
+      flex:1;
+      display:grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap:12px 24px;
+    }
+
+    .stone-field{
+      display:flex;
+      flex-direction:column;
+      gap:4px;
+    }
+
+    .stone-field-label{
+      font-size:13px;
+      color:rgba(255,255,255,.65);
+      font-weight:600;
+      text-transform:uppercase;
+      letter-spacing:.5px;
+    }
+
+    .stone-field-value{
+      font-size:17px;
+      font-weight:700;
+      color:rgba(255,255,255,.92);
+    }
+
+    .stone-actions{
+      display:flex;
+      gap:10px;
+      flex-shrink:0;
+    }
+
+    .btn-icon{
+      width:40px;
+      height:40px;
+      border-radius:10px;
+      border:1px solid rgba(255,255,255,.18);
+      background:rgba(255,255,255,.08);
+      color:rgba(255,255,255,.92);
+      display:grid;
+      place-items:center;
+      cursor:pointer;
+      font-size:20px;
+      position:relative;
+    }
+    .btn-icon:hover{ background:rgba(255,255,255,.14); }
+    .btn-icon.danger{
+      border-color:rgba(255,106,95,.35);
+      background:rgba(255,106,95,.15);
+    }
+    .btn-icon.danger:hover{ background:rgba(255,106,95,.25); }
+
+    .file-input{
+      position:absolute;
+      opacity:0;
+      width:100%;
+      height:100%;
+      cursor:pointer;
+      top:0;
+      left:0;
+    }
+
+    .photo-badge{
+      position:absolute;
+      top:-6px;
+      right:-6px;
+      width:20px;
+      height:20px;
+      border-radius:50%;
+      background:linear-gradient(135deg, #4a86ff, #3c78ff);
+      color:#fff;
+      font-size:11px;
+      font-weight:900;
+      display:grid;
+      place-items:center;
+      border:2px solid rgba(255,255,255,.12);
+    }
+
+    .btn-stone{
+      display:inline-flex;
+      align-items:center;
+      gap:14px;
+      padding:16px 20px;
+      border-radius:12px;
+      border:1px solid rgba(255,255,255,.18);
+      background:linear-gradient(180deg, rgba(74,134,255,.55), rgba(60,120,255,.35));
+      color:#fff;
+      font-size:20px;
+      font-weight:800;
+      text-decoration:none;
+      box-shadow:0 10px 22px rgba(0,0,0,.18);
+      cursor:pointer;
+    }
+    .btn-stone:hover{ filter:brightness(1.05); }
+
+    .plus{
+      width:32px;
+      height:32px;
+      border-radius:10px;
+      display:grid;
+      place-items:center;
+      background:rgba(255,255,255,.18);
+      font-size:26px;
+      line-height:0;
+    }
+
+    .chips{
+      display:flex;
+      border:1px solid var(--stroke);
+      border-radius:12px;
+      overflow:hidden;
+      margin-top:6px;
+    }
+    .chips button{
+      flex:1;
+      border:0;
+      padding:16px;
+      background:transparent;
+      color:var(--text);
+      font-size:18px;
+      cursor:pointer;
+      border-right:1px solid rgba(255,255,255,.10);
+    }
+    .chips button:last-child{ border-right:0; }
+
+    .date-grid{
+      grid-column:1 / -1;
+      display:grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap:18px;
+      margin-top:10px;
+    }
+
+    @media (max-width: 980px){
+      .grid{ grid-template-columns:1fr; }
+      .date-grid{ grid-template-columns:1fr; }
+      .btn-stone{ width:100%; }
+      .stone-info{ grid-template-columns:1fr; }
+      .stone-card{ flex-direction:column; align-items:stretch; }
+      .stone-actions{ justify-content:flex-end; }
+    }
+
+   
+   /* ===== Photo Modal (FULLSCREEN PHOTO ONLY) ===== */
+.modal-overlay{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.65);
+  display:none;
+  align-items:stretch;
+  justify-content:stretch;
+  padding:0;
+  z-index:9999;
+}
+
+.modal{
+  width:100vw;
+  height:100vh;
+  border-radius:0;
+  border:0;
+  background:rgba(20,28,52,.96);
+  box-shadow:none;
+  display:grid;
+  grid-template-rows:auto 1fr auto;
+}
+
+/* header / footer — без змін логіки */
+.modal-header,
+.modal-footer{
+  background:rgba(255,255,255,.06);
+  border-color:rgba(255,255,255,.12);
+}
+
+/* ОСНОВНЕ: дві колонки, права ФІКСОВАНА */
+.modal-body{
+  display:grid;
+  grid-template-columns: 1fr 340px; /* 👈 ПРАВА ЧАСТИНА НЕ РОЗТЯГУЄТЬСЯ */
+  gap:16px;
+  padding:16px;
+  overflow:hidden;
+}
+
+/* ЛІВА ЧАСТИНА — ВЕЛИКЕ ФОТО */
+.viewer{
+  min-height:0;
+  height:100%;
+  border-radius:16px;
+  border:1px solid rgba(255,255,255,.12);
+  background:rgba(255,255,255,.06);
+  display:grid;
+  place-items:center;
+  overflow:hidden;
+}
+
+.viewer img{
+  max-width:100%;
+  max-height:100%;
+  object-fit:contain; /* 🔥 ключове */
+  user-select:none;
+  -webkit-user-drag:none;
+}
+
+/* ПРАВА ЧАСТИНА — СПИСОК ФОТО (НЕ fullscreen) */
+.thumbs{
+  width:100%;
+  max-width:340px;
+  border-radius:16px;
+  border:1px solid rgba(255,255,255,.12);
+  background:rgba(255,255,255,.04);
+  padding:10px;
+  overflow:auto;
+}
+
+/* превʼю залишаються компактними */
+.thumb img{
+  width:62px;
+  height:48px;
+  object-fit:cover;
+}
+
+/* мобільна версія */
+@media (max-width: 980px){
+  .modal-body{
+    grid-template-columns:1fr;
+  }
+  .thumbs{
+    max-width:none;
+    max-height:260px;
+  }
+}
+
+  
+  </style>
+</head>
+
+<body>
+<div class="frame">
+  <div class="content">
+    <h1>Створити нового пацієнта</h1>
+
+    <div class="grid">
+      <div class="field">
+        <div class="label"><span class="req">*</span>Ім'я</div>
+        <input class="input" placeholder="Повне ім'я">
+      </div>
+
+      <div class="field">
+        <div class="label"><span class="req">*</span>Email</div>
+        <input class="input" placeholder="patient@example.com">
+      </div>
+
+      <div class="field">
+        <div class="label"><span class="req">*</span>Телефон</div>
+        <input class="input" placeholder="+380...">
+      </div>
+
+      <div class="field"></div>
+
+      <div class="field">
+        <div class="label"><span class="req">*</span>Тип лікування</div>
+        <div class="seg">
+          <button type="button" class="active">Лікування</button>
+          <button type="button">Профілактика</button>
+        </div>
+      </div>
+
+      <div class="field">
+        <div class="label"><span class="req">*</span>Тип каменю</div>
+        <div class="seg">
+          <button type="button" class="active">Уратний</button>
+          <button type="button">Уратно-оксалатний</button>
+        </div>
+      </div>
+
+      <!-- Камені -->
+      <div class="stones-wrap">
+        <div class="label"><span class="req">*</span>Камені</div>
+        <div class="stones-groups" id="stonesGroups"></div>
+
+        <a href="#" class="btn-stone" id="addStoneBtn">
+          <span class="plus">+</span>
+          <span>Додати камінь</span>
+        </a>
+      </div>
+
+      <div class="field" style="grid-column:1 / -1;">
+        <div class="chips">
+          <button type="button">Подагра</button>
+          <button type="button">Діабет 1 типу</button>
+          <button type="button">Гіпертензія</button>
+          <button type="button">Свій варіант</button>
+        </div>
+      </div>
+
+      <!-- Дата -->
+    <!-- Дата початку спостереження -->
+<div class="field" style="grid-column:1 / -1;">
+  <div class="label">
+    <span class="req">*</span>Дата початку спостереження
+  </div>
+  <input
+    type="date"
+    class="input"
+    id="startDate"
+    name="startDate"
+    required
+  >
+</div>
+
+
+
+      
+    </div>
+  </div>
+</div>
+
+<!-- ===== Photo Modal Markup ===== -->
+<div class="modal-overlay" id="photoModalOverlay" aria-hidden="true">
+  <div class="modal" role="dialog" aria-modal="true" aria-label="Перегляд фото">
+    <div class="modal-header">
+      <div class="modal-title" id="photoModalTitle">
+        Перегляд фото
+        <span class="pill" id="photoCountPill">0 фото</span>
+      </div>
+      <button class="modal-close" type="button" onclick="closePhotoModal()" aria-label="Закрити">×</button>
+    </div>
+
+    <div class="modal-body">
+      <div class="viewer" id="photoViewer">
+        <div class="viewer-empty">Немає фото</div>
+      </div>
+
+      <div class="thumbs" id="photoThumbs"></div>
+    </div>
+
+    <div class="modal-footer">
+      <div class="caption" id="photoCaption">—</div>
+      <div class="nav">
+        <button type="button" onclick="prevPhoto()" id="prevBtn">← Попереднє</button>
+        <button type="button" onclick="nextPhoto()" id="nextBtn">Наступне →</button>
+        <button type="button" class="danger-btn" onclick="deleteCurrentPhoto()" id="delBtn">Видалити фото</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // ===== labels =====
+  const organLabels = { RK:'Права нирка', LK:'Ліва нирка', RU:'Правий сечовід', LU:'Лівий сечовід', BL:'Сечовий міхур' };
+  const locationLabels = {
+    upper_calyx:'Верхня чашечка', middle_calyx:'Середня чашечка', lower_calyx:'Нижня чашечка',
+    renal_pelvis:'Миска', upj:'UPJ', ureter_proximal:'Проксимальна частина', ureter_middle:'Середня частина',
+    ureter_distal:'Дистальна частина', uvj_orifice:'Вічко (UVJ)', bladder:'Сечовий міхур'
+  };
+  const statusLabels = { active:'Активний', shrinking:'Зменшується', no_response:'Без відповіді', resolved:'Зник' };
+  const prognosisLabels = { high:'Високий', medium:'Середній', low:'Низький' };
+
+  // ===== stable id =====
+  function makeStoneId(){
+    if (window.crypto && crypto.randomUUID) return crypto.randomUUID();
+    return 'st_' + Date.now() + '_' + Math.random().toString(16).slice(2);
+  }
+
+  // ===== state =====
+  let collapsedGroups = JSON.parse(localStorage.getItem('collapsed_groups') || '{}');
+  let stonePhotos = JSON.parse(localStorage.getItem('temp_stone_photos') || '{}');
+
+  function loadStones() {
+    const data = localStorage.getItem('temp_stones');
+    const stones = data ? JSON.parse(data) : [];
+    let changed = false;
+    stones.forEach(s => { if (!s.id) { s.id = makeStoneId(); changed = true; } });
+    if (changed) localStorage.setItem('temp_stones', JSON.stringify(stones));
+    return stones;
+  }
+  function saveStones(stones) { localStorage.setItem('temp_stones', JSON.stringify(stones)); }
+
+  function deleteStone(stoneId) {
+    if (!confirm('Ви впевнені, що хочете видалити цей камінь?')) return;
+    const stones = loadStones();
+    const idx = stones.findIndex(s => s.id === stoneId);
+    if (idx === -1) return;
+    stones.splice(idx, 1);
+    saveStones(stones);
+    delete stonePhotos[stoneId];
+    localStorage.setItem('temp_stone_photos', JSON.stringify(stonePhotos));
+    renderStones();
+  }
+
+  function uploadPhotos(stoneId, files) {
+    if (!files || files.length === 0) return;
+    const photosArray = stonePhotos[stoneId] || [];
+
+    Array.from(files).forEach(file => {
+      if (file.type.startsWith('image/')) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          photosArray.push({ name:file.name, data:e.target.result, timestamp:Date.now() });
+          stonePhotos[stoneId] = photosArray;
+          localStorage.setItem('temp_stone_photos', JSON.stringify(stonePhotos));
+          renderStones();
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+  }
+
+  function viewNotes(stoneId) {
+    const stones = loadStones();
+    const stone = stones.find(s => s.id === stoneId);
+    const notes = (stone && stone.notes) ? stone.notes : '';
+    alert(notes ? notes : 'Нотатки відсутні');
+  }
+
+  function editStone(stoneId) {
+    window.location.href = `add-stone.html?return=index.html&edit=${encodeURIComponent(stoneId)}`;
+  }
+
+  // ===== grouping =====
+  function groupStones(stones) {
+    const groups = {};
+    stones.forEach((stone) => {
+      let groupKey, groupTitle;
+      if (stone.status === 'resolved') { groupKey='resolved'; groupTitle='Завершені камені (зниклі)'; }
+      else { groupKey = stone.organ; groupTitle = organLabels[stone.organ] || stone.organ; }
+
+      if (!groups[groupKey]) groups[groupKey] = { title: groupTitle, stones: [] };
+      groups[groupKey].stones.push(stone);
+    });
+    return groups;
+  }
+
+  function toggleGroup(groupKey) {
+    collapsedGroups[groupKey] = !collapsedGroups[groupKey];
+    localStorage.setItem('collapsed_groups', JSON.stringify(collapsedGroups));
+
+    const content = document.querySelector(`[data-group="${groupKey}"] .group-content`);
+    const toggle = document.querySelector(`[data-group="${groupKey}"] .group-toggle`);
+
+    if (collapsedGroups[groupKey]) { content.classList.add('collapsed'); toggle.classList.add('collapsed'); }
+    else { content.classList.remove('collapsed'); toggle.classList.remove('collapsed'); }
+  }
+
+  // ===== render stones =====
+  function renderStones() {
+    const stones = loadStones();
+    const container = document.getElementById('stonesGroups');
+    if (stones.length === 0) { container.innerHTML = ''; return; }
+
+    const groups = groupStones(stones);
+    const groupOrder = ['RK', 'LK', 'RU', 'LU', 'BL', 'resolved'];
+
+    container.innerHTML = groupOrder
+      .filter(key => groups[key])
+      .map(groupKey => {
+        const group = groups[groupKey];
+        const isCollapsed = collapsedGroups[groupKey];
+
+        return `
+          <div class="stone-group" data-group="${groupKey}">
+            <div class="group-header" onclick="toggleGroup('${groupKey}')">
+              <div class="group-title">
+                <span>${group.title}</span>
+                <span class="group-count">${group.stones.length}</span>
+              </div>
+              <div class="group-toggle ${isCollapsed ? 'collapsed' : ''}">▼</div>
+            </div>
+            <div class="group-content ${isCollapsed ? 'collapsed' : ''}">
+              ${group.stones.map((stone, idx) => `
+                <div class="stone-card">
+                  <div class="stone-number">${idx + 1}</div>
+                  <div class="stone-info">
+                    ${groupKey !== 'resolved' ? `
+                      <div class="stone-field">
+                        <div class="stone-field-label">Локалізація</div>
+                        <div class="stone-field-value">${locationLabels[stone.location] || stone.location}</div>
+                      </div>
+                    ` : `
+                      <div class="stone-field">
+                        <div class="stone-field-label">Орган</div>
+                        <div class="stone-field-value">${organLabels[stone.organ] || stone.organ}</div>
+                      </div>
+                      <div class="stone-field">
+                        <div class="stone-field-label">Локалізація</div>
+                        <div class="stone-field-value">${locationLabels[stone.location] || stone.location}</div>
+                      </div>
+                    `}
+                    <div class="stone-field">
+                      <div class="stone-field-label">Розмір</div>
+                      <div class="stone-field-value">${stone.size_mm.length_max} × ${stone.size_mm.width_max} мм</div>
+                    </div>
+                    <div class="stone-field">
+                      <div class="stone-field-label">Щільність</div>
+                      <div class="stone-field-value">${stone.density_hu.min}–${stone.density_hu.max} HU</div>
+                    </div>
+                    ${groupKey !== 'resolved' ? `
+                      <div class="stone-field">
+                        <div class="stone-field-label">Статус</div>
+                        <div class="stone-field-value">${statusLabels[stone.status] || stone.status}</div>
+                      </div>
+                    ` : ''}
+                    <div class="stone-field">
+                      <div class="stone-field-label">Прогноз</div>
+                      <div class="stone-field-value">${prognosisLabels[stone.prognosis] || stone.prognosis}</div>
+                    </div>
+                  </div>
+
+                  <div class="stone-actions">
+                    <button class="btn-icon" onclick="editStone('${stone.id}')" title="Редагувати">✎</button>
+
+                    <button class="btn-icon" title="Завантажити фото">
+                      📷
+                      ${(stonePhotos[stone.id]?.length || 0) > 0 ? `<span class="photo-badge">${stonePhotos[stone.id].length}</span>` : ''}
+                      <input type="file" class="file-input" accept="image/*" multiple
+                        onchange="uploadPhotos('${stone.id}', this.files)" />
+                    </button>
+
+                    <button class="btn-icon" onclick="openPhotoModal('${stone.id}')" title="Переглянути фото">📂</button>
+                    <button class="btn-icon" onclick="viewNotes('${stone.id}')" title="Нотатки">📋</button>
+                    <button class="btn-icon danger" onclick="deleteStone('${stone.id}')" title="Видалити">🗑️</button>
+                  </div>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+        `;
+      })
+      .join('');
+  }
+
+  // ===== add stone btn =====
+  document.getElementById('addStoneBtn').addEventListener('click', (e) => {
+    e.preventDefault();
+    window.location.href = 'add-stone.html?return=index.html';
+  });
+
+  // ===== Photo Modal Logic =====
+  const overlay = document.getElementById('photoModalOverlay');
+  const viewer = document.getElementById('photoViewer');
+  const thumbs = document.getElementById('photoThumbs');
+  const titleEl = document.getElementById('photoModalTitle');
+  const countPill = document.getElementById('photoCountPill');
+  const captionEl = document.getElementById('photoCaption');
+  const prevBtn = document.getElementById('prevBtn');
+  const nextBtn = document.getElementById('nextBtn');
+  const delBtn  = document.getElementById('delBtn');
+
+  let modalStoneId = null;
+  let modalPhotos = [];
+  let modalIndex = 0;
+
+  function fmtDate(ts){
+    try{
+      const d = new Date(ts);
+      return d.toLocaleString('uk-UA', { year:'numeric', month:'2-digit', day:'2-digit', hour:'2-digit', minute:'2-digit' });
+    }catch(e){ return ''; }
+  }
+
+  function openPhotoModal(stoneId){
+    modalStoneId = stoneId;
+    modalPhotos = (stonePhotos[stoneId] || []).slice().sort((a,b)=> (b.timestamp||0)-(a.timestamp||0));
+    modalIndex = 0;
+
+    const stones = loadStones();
+    const stone = stones.find(s => s.id === stoneId);
+
+    const organ = stone ? (organLabels[stone.organ] || stone.organ) : '—';
+    const loc = stone ? (locationLabels[stone.location] || stone.location) : '—';
+    titleEl.innerHTML = `Перегляд фото <span class="pill">${organ}</span> <span class="pill">${loc}</span>`;
+    countPill.textContent = `${modalPhotos.length} фото`;
+
+    overlay.style.display = 'flex';
+    overlay.setAttribute('aria-hidden', 'false');
+    document.body.style.overflow = 'hidden';
+
+    renderPhotoModal();
+  }
+
+  function closePhotoModal(){
+    overlay.style.display = 'none';
+    overlay.setAttribute('aria-hidden', 'true');
+    document.body.style.overflow = '';
+    modalStoneId = null;
+    modalPhotos = [];
+    modalIndex = 0;
+  }
+
+  function renderPhotoModal(){
+    // viewer
+    viewer.innerHTML = '';
+    if (!modalPhotos.length){
+      viewer.innerHTML = `<div class="viewer-empty">Немає фото для цього каменя</div>`;
+      thumbs.innerHTML = '';
+      captionEl.textContent = '—';
+      prevBtn.disabled = true;
+      nextBtn.disabled = true;
+      delBtn.disabled  = true;
+      return;
+    }
+
+    if (modalIndex < 0) modalIndex = 0;
+    if (modalIndex >= modalPhotos.length) modalIndex = modalPhotos.length - 1;
+
+    const p = modalPhotos[modalIndex];
+    const img = document.createElement('img');
+    img.src = p.data;
+    img.alt = p.name || 'Фото';
+    viewer.appendChild(img);
+
+    captionEl.textContent = `${modalIndex+1}/${modalPhotos.length} — ${p.name || 'Фото'} (${fmtDate(p.timestamp)})`;
+
+    // thumbs
+    thumbs.innerHTML = modalPhotos.map((ph, i) => `
+      <div class="thumb ${i===modalIndex ? 'active' : ''}" onclick="selectPhoto(${i})">
+        <img src="${ph.data}" alt="">
+        <div class="thumb-meta">
+          <div class="thumb-name">${escapeHtml(ph.name || 'Фото')}</div>
+          <div class="thumb-date">${escapeHtml(fmtDate(ph.timestamp))}</div>
+        </div>
+      </div>
+    `).join('');
+
+    prevBtn.disabled = (modalIndex === 0);
+    nextBtn.disabled = (modalIndex === modalPhotos.length - 1);
+    delBtn.disabled  = false;
+  }
+
+  function selectPhoto(i){
+    modalIndex = i;
+    renderPhotoModal();
+  }
+
+  function prevPhoto(){
+    if (modalIndex > 0){ modalIndex--; renderPhotoModal(); }
+  }
+
+  function nextPhoto(){
+    if (modalIndex < modalPhotos.length - 1){ modalIndex++; renderPhotoModal(); }
+  }
+
+  function deleteCurrentPhoto(){
+    if (!modalPhotos.length) return;
+    const p = modalPhotos[modalIndex];
+    if (!confirm(`Видалити фото "${p.name || 'Фото'}"?`)) return;
+
+    // видаляємо з stonePhotos[modalStoneId]
+    const arr = (stonePhotos[modalStoneId] || []);
+    const idx = arr.findIndex(x => (x.timestamp === p.timestamp && x.data === p.data));
+    if (idx !== -1) arr.splice(idx, 1);
+
+    stonePhotos[modalStoneId] = arr;
+    localStorage.setItem('temp_stone_photos', JSON.stringify(stonePhotos));
+
+    // перезавантажити модальні дані
+    modalPhotos = (stonePhotos[modalStoneId] || []).slice().sort((a,b)=> (b.timestamp||0)-(a.timestamp||0));
+    if (modalIndex >= modalPhotos.length) modalIndex = modalPhotos.length - 1;
+
+    countPill.textContent = `${modalPhotos.length} фото`;
+    renderPhotoModal();
+    renderStones(); // щоб оновився бейдж на кнопці
+  }
+
+  function escapeHtml(str){
+    return String(str).replace(/[&<>"']/g, (m)=>({
+      '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+    }[m]));
+  }
+
+  // overlay click to close (тільки якщо клік по фону)
+  overlay.addEventListener('click', (e)=>{
+    if (e.target === overlay) closePhotoModal();
+  });
+
+  // keyboard
+  document.addEventListener('keydown', (e)=>{
+    if (overlay.style.display !== 'flex') return;
+    if (e.key === 'Escape') closePhotoModal();
+    if (e.key === 'ArrowLeft') prevPhoto();
+    if (e.key === 'ArrowRight') nextPhoto();
+  });
+
+  // ===== init =====
+  renderStones();
+
+  // зробити глобальними
+  window.deleteStone = deleteStone;
+  window.editStone = editStone;
+  window.toggleGroup = toggleGroup;
+  window.uploadPhotos = uploadPhotos;
+  window.viewNotes = viewNotes;
+
+  window.openPhotoModal = openPhotoModal;
+  window.closePhotoModal = closePhotoModal;
+  window.selectPhoto = selectPhoto;
+  window.prevPhoto = prevPhoto;
+  window.nextPhoto = nextPhoto;
+  window.deleteCurrentPhoto = deleteCurrentPhoto;
+</script>
+
+</body>
+</html>
