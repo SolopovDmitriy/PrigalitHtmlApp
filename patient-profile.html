@@ -397,7 +397,7 @@
       ureter_distal:'Дистальна частина', uvj_orifice:'Вічко (UVJ)', bladder:'Сечовий міхур'
     };
     const statusLabels = { active:'Активний', shrinking:'Зменшується', no_response:'Без відповіді', resolved:'Зник' };
-    const prognosisLabels = { high:'Високий', medium:'Середній', low:'Низький' };
+    const prognosisLabels = { high:'Висока', medium:'Середня', low:'Низька' };
 
     // ===== patient init =====
     const patientId = qs('patient');
@@ -575,10 +575,15 @@
                         <div class="stone-field-label">Розмір</div>
                         <div class="stone-field-value">${stone.size_mm.length_max} × ${stone.size_mm.width_max} мм</div>
                       </div>
+                     
                       <div class="stone-field">
-                        <div class="stone-field-label">Щільність</div>
-                        <div class="stone-field-value">${stone.density_hu.min}–${stone.density_hu.max} HU</div>
+                        <div class="stone-field-label">Щільність (HU)</div>
+                        <div class="stone-field-value">
+                           ${stone.density_hu.min} / ${stone.density_hu.mean} / ${stone.density_hu.max}
+                        </div>
                       </div>
+
+
                       ${groupKey !== 'resolved' ? `
                         <div class="stone-field">
                           <div class="stone-field-label">Статус</div>
@@ -586,7 +591,7 @@
                         </div>
                       ` : ''}
                       <div class="stone-field">
-                        <div class="stone-field-label">Прогноз</div>
+                        <div class="stone-field-label">Ймовірність розчинення</div>
                         <div class="stone-field-value">${prognosisLabels[stone.prognosis] || stone.prognosis}</div>
                       </div>
                     </div>

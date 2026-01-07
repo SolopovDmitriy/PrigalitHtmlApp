@@ -271,12 +271,12 @@
 
           <!-- 5) Прогноз -->
           <div class="row">
-            <div class="label"><span class="req">*</span>Прогноз лікаря щодо розчинення каменя</div>
+            <div class="label"><span class="req">*</span>Ймовірність розчинення каменя</div>
             <select id="prognosis" name="prognosis" class="select" required>
-              <option value="" selected disabled>Оберіть прогноз</option>
-              <option value="high">Високий</option>
-              <option value="medium">Середній</option>
-              <option value="low">Низький</option>
+              <option value="" selected disabled>Оберіть рівень ймовірності</option>
+              <option value="high">Висока</option>
+              <option value="medium">Середня</option>
+              <option value="low">Низька</option>
             </select>
           </div>
 
@@ -382,7 +382,7 @@
 
     function getReturnUrl(){
       const params = new URLSearchParams(window.location.search);
-      return params.get('return') || (params.get('patient') ? `patient-profile.html?patient=${encodeURIComponent(params.get('patient'))}` : 'patients-list.html');
+      return params.get('return') || (params.get('patient') ? `patient-profile.html?patient=${encodeURIComponent(params.get('patient'))}` : 'index.html.html');
     }
     function getEditId(){
       const params = new URLSearchParams(window.location.search);
