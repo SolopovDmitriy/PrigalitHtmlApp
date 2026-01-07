@@ -103,67 +103,6 @@
     }
     .stone-field-value{ font-size:17px; font-weight:700; color:rgba(255,255,255,.92); }
 
-    /* ===== Tooltip for details (hover on “?”) ===== */
-    .info-icon{
-      display:inline-grid;
-      place-items:center;
-      width:18px;
-      height:18px;
-      border-radius:999px;
-      border:1px solid rgba(255,255,255,.20);
-      background:rgba(255,255,255,.10);
-      color:rgba(255,255,255,.92);
-      font-size:12px;
-      font-weight:900;
-      cursor:help;
-      user-select:none;
-      position:relative;
-      top:-1px;
-    }
-    .info-icon:hover{ background:rgba(255,255,255,.16); }
-
-    .info-icon[data-tip]::after{
-      content: attr(data-tip);
-      position:absolute;
-      left:50%;
-      top:calc(100% + 8px);
-      transform:translateX(-50%);
-      min-width:220px;
-      max-width:340px;
-      padding:10px 12px;
-      border-radius:12px;
-      border:1px solid rgba(255,255,255,.14);
-      background:rgba(20,28,52,.98);
-      color:rgba(255,255,255,.92);
-      font-size:13px;
-      line-height:1.35;
-      box-shadow:0 14px 40px rgba(0,0,0,.28);
-      opacity:0;
-      pointer-events:none;
-      white-space:pre-line;
-      z-index:99999;
-    }
-    .info-icon[data-tip]::before{
-      content:"";
-      position:absolute;
-      left:50%;
-      top:calc(100% + 2px);
-      transform:translateX(-50%) rotate(45deg);
-      width:10px;
-      height:10px;
-      background:rgba(20,28,52,.98);
-      border-left:1px solid rgba(255,255,255,.14);
-      border-top:1px solid rgba(255,255,255,.14);
-      opacity:0;
-      pointer-events:none;
-      z-index:99998;
-    }
-    .info-icon[data-tip]:hover::after,
-    .info-icon[data-tip]:hover::before{
-      opacity:1;
-    }
-
-
     .stone-actions{ display:flex; gap:10px; flex-shrink:0; }
 
     .btn-icon{
@@ -619,15 +558,6 @@
       else { content.classList.remove('collapsed'); toggle.classList.remove('collapsed'); }
     }
 
-
-
-    function getDisappearanceDetails(stone){
-      const sm = stone.disappearance.specific_method;
-      const methodText =
-        (chemicalSpecificLabels[sm] || physicalSpecificLabels[sm] || combinedSpecificLabels[sm] || sm);
-      return `Метод: ${methodText}\nДата: ${stone.disappearance.date}`;
-    }
-
     // ===== render stones =====
     function renderStones() {
       const stones = loadStones(patientId);
@@ -657,20 +587,55 @@
                   <div class="stone-card">
                     <div class="stone-number">${idx + 1}</div>
                     <div class="stone-info">
+                      ${groupKey !== 'resolved' ? `
+                        <div class="stone-field">
+                          <div class="stone-field-label">Локалізація</div>
+                          <div class="stone-field-value">${locationLabels[stone.location] || stone.location}</div>
+                        </div>
+                      ` : `
+                        <div class="stone-field">
+                          <div class="stone-field-label">Орган</div>
+                          <div class="stone-field-value">${organLabels[stone.organ] || stone.organ}</div>
+                        </div>
+                        <div class="stone-field">
+                          <div class="stone-field-label">Локалізація</div>
+                          <div class="stone-field-value">${locationLabels[stone.location] || stone.location}</div>
+                        </div>
+                      `}
                       <div class="stone-field">
-                        <div class="stone-field-label">Статус</div>
-                        <div class="stone-field-value">${statusLabels[stone.status] || stone.status}</div>
+                        <div class="stone-field-label">Розмір (мм)</div>
+                        <div class="stone-field-value">${stone.size_mm.length_max} × ${stone.size_mm.width_max} </div>
+                      </div>                     
+                      <div class="stone-field">
+                        <div class="stone-field-label">Щільність (HU)</div>
+                        <div class="stone-field-value">
+                           ${stone.density_hu.min} / ${stone.density_hu.mean} / ${stone.density_hu.max}
+                        </div>
                       </div>
 
-                      ${groupKey === 'resolved' ? `
+                      ${groupKey !== 'resolved' ? `
                         <div class="stone-field">
-                          <div class="stone-field-label">
-                            Зникнення
-                            <span class="info-icon" data-tip="${escapeHtml(getDisappearanceDetails(stone))}">?</span>
-                          </div>
-                          <div class="stone-field-value">Деталі</div>
+                          <div class="stone-field-label">Статус</div>
+                          <div class="stone-field-value">${statusLabels[stone.status] || stone.status}</div>
                         </div>
-                      ` : ''}
+                      ` : `
+                        <div class="stone-field">
+                          <div class="stone-field-label">Зникнення</div>
+                          <div class="stone-field-value">
+                            ${
+                              stone.disappearance?.specific_method
+                                ? (
+                                    chemicalSpecificLabels[stone.disappearance.specific_method] ||
+                                    physicalSpecificLabels[stone.disappearance.specific_method] ||
+                                    combinedSpecificLabels[stone.disappearance.specific_method] ||
+                                    stone.disappearance.specific_method
+                                  )
+                                : '—'
+                            }
+                            ${stone.disappearance?.date ? ` • ${stone.disappearance.date}` : ''}
+                          </div>
+                        </div>
+                      `}
 
                       <div class="stone-field">
                         <div class="stone-field-label">Ймовірність розчинення</div>
