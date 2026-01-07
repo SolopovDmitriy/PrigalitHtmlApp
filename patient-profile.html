@@ -696,21 +696,21 @@
                         </div>
                       </div>
 
-                      
-${groupKey !== 'resolved' ? `
-  <div class="stone-field">
-    <div class="stone-field-label">Статус</div>
-    <div class="stone-field-value">${statusLabels[stone.status] || stone.status}</div>
-  </div>
-` : `
-  <div class="stone-field">
-    <div class="stone-field-label">
-      Зникнення
-      <span class="info-icon" data-tip="${escapeHtml(getDisappearanceDetails(stone))}">?</span>
-    </div>
-    <div class="stone-field-value">Зник</div>
-  </div>
-`}
+
+                      ${groupKey !== 'resolved' ? `
+                        <div class="stone-field">
+                          <div class="stone-field-label">Статус</div>
+                          <div class="stone-field-value">${statusLabels[stone.status] || stone.status}</div>
+                        </div>
+                      ` : `
+                        <div class="stone-field">
+                          <div class="stone-field-label">
+                            Статус
+                            <span class="info-icon" data-tip="${escapeHtml(getDisappearanceDetails(stone))}">?</span>
+                          </div>
+                          <div class="stone-field-value">Зник</div>
+                        </div>
+                      `}
 
 
                       <div class="stone-field">
