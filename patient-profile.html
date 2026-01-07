@@ -397,6 +397,37 @@
       ureter_distal:'Дистальна частина', uvj_orifice:'Вічко (UVJ)', bladder:'Сечовий міхур'
     };
     const statusLabels = { active:'Активний', shrinking:'Зменшується', no_response:'Без відповіді', resolved:'Зник' };
+    const disappearanceMethodLabels = {
+      chemical: 'Хімічний (хемолітоліз)',
+      physical: 'Фізичний',
+      combined: 'Змішаний',
+      spontaneous: 'Спонтанне відходження'
+    };
+
+    const chemicalSpecificLabels = {
+      oral_chemolitholysis: 'Пероральний хемолітоліз',
+      urine_alkalinization: 'Алкалізація сечі',
+      programmed_chemolitholysis: 'Програмований хемолітоліз'
+    };
+
+    const physicalSpecificLabels = {
+      urs: 'URS – уретероскопія',
+      rirs: 'RIRS – ретроградна інтраренальна хірургія',
+      pcnl: 'PCNL – перкутанна нефролітотомія',
+      eswl: 'ESWL – дистанційна УХЛ',
+      laparoscopic: 'Лапароскопічне видалення',
+      open_surgery: 'Відкрите хірургічне видалення'
+    };
+
+    const combinedSpecificLabels = {
+      chemo_urs: 'Хемолітоліз → URS',
+      chemo_rirs: 'Хемолітоліз → RIRS',
+      chemo_pcnl: 'Хемолітоліз → PCNL',
+      chemo_eswl: 'Хемолітоліз → ESWL',
+      chemo_laparoscopic: 'Хемолітоліз → Лапароскопічне втручання',
+      chemo_open: 'Хемолітоліз → Відкрита операція'
+    };
+
     const prognosisLabels = { high:'Висока', medium:'Середня', low:'Низька' };
 
     // ===== patient init =====
@@ -583,12 +614,26 @@
                       </div>
 
 
-                  
+                      ${groupKey !== 'resolved' ? `
                         <div class="stone-field">
                           <div class="stone-field-label">Статус</div>
                           <div class="stone-field-value">${statusLabels[stone.status] || stone.status}</div>
                         </div>
-                   
+                      ` : `
+                        <div class="stone-field">
+                          <div class="stone-field-label">Зникнення</div>
+                          <div class="stone-field-value">
+                            ${disappearanceMethodLabels[stone.disappearance?.method] || (stone.disappearance?.method || '—')}
+                            ${stone.disappearance?.method !== 'spontaneous' ? ` • ${
+                              (stone.disappearance?.method === 'chemical' ? (chemicalSpecificLabels[stone.disappearance?.specific_method] || stone.disappearance?.specific_method) :
+                               stone.disappearance?.method === 'physical' ? (physicalSpecificLabels[stone.disappearance?.specific_method] || stone.disappearance?.specific_method) :
+                               stone.disappearance?.method === 'combined' ? (combinedSpecificLabels[stone.disappearance?.specific_method] || stone.disappearance?.specific_method) :
+                               (stone.disappearance?.specific_method || '—'))
+                            }` : ''}
+                            ${stone.disappearance?.date ? ` • ${stone.disappearance.date}` : ''}
+                          </div>
+                        </div>
+                      `}
                       <div class="stone-field">
                         <div class="stone-field-label">Ймовірність розчинення</div>
                         <div class="stone-field-value">${prognosisLabels[stone.prognosis] || stone.prognosis}</div>
