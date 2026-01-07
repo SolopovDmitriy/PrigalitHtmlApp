@@ -613,7 +613,6 @@
                         </div>
                       </div>
 
-
                       ${groupKey !== 'resolved' ? `
                         <div class="stone-field">
                           <div class="stone-field-label">Статус</div>
@@ -623,17 +622,21 @@
                         <div class="stone-field">
                           <div class="stone-field-label">Зникнення</div>
                           <div class="stone-field-value">
-                            ${disappearanceMethodLabels[stone.disappearance?.method] || (stone.disappearance?.method || '—')}
-                            ${stone.disappearance?.method !== 'spontaneous' ? ` • ${
-                              (stone.disappearance?.method === 'chemical' ? (chemicalSpecificLabels[stone.disappearance?.specific_method] || stone.disappearance?.specific_method) :
-                               stone.disappearance?.method === 'physical' ? (physicalSpecificLabels[stone.disappearance?.specific_method] || stone.disappearance?.specific_method) :
-                               stone.disappearance?.method === 'combined' ? (combinedSpecificLabels[stone.disappearance?.specific_method] || stone.disappearance?.specific_method) :
-                               (stone.disappearance?.specific_method || '—'))
-                            }` : ''}
+                            ${
+                              stone.disappearance?.specific_method
+                                ? (
+                                    chemicalSpecificLabels[stone.disappearance.specific_method] ||
+                                    physicalSpecificLabels[stone.disappearance.specific_method] ||
+                                    combinedSpecificLabels[stone.disappearance.specific_method] ||
+                                    stone.disappearance.specific_method
+                                  )
+                                : '—'
+                            }
                             ${stone.disappearance?.date ? ` • ${stone.disappearance.date}` : ''}
                           </div>
                         </div>
                       `}
+
                       <div class="stone-field">
                         <div class="stone-field-label">Ймовірність розчинення</div>
                         <div class="stone-field-value">${prognosisLabels[stone.prognosis] || stone.prognosis}</div>
