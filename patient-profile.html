@@ -572,10 +572,9 @@
                         </div>
                       `}
                       <div class="stone-field">
-                        <div class="stone-field-label">Розмір</div>
-                        <div class="stone-field-value">${stone.size_mm.length_max} × ${stone.size_mm.width_max} мм</div>
-                      </div>
-                     
+                        <div class="stone-field-label">Розмір (мм)</div>
+                        <div class="stone-field-value">${stone.size_mm.length_max} × ${stone.size_mm.width_max} </div>
+                      </div>                     
                       <div class="stone-field">
                         <div class="stone-field-label">Щільність (HU)</div>
                         <div class="stone-field-value">
@@ -584,12 +583,12 @@
                       </div>
 
 
-                      ${groupKey !== 'resolved' ? `
+                  
                         <div class="stone-field">
                           <div class="stone-field-label">Статус</div>
                           <div class="stone-field-value">${statusLabels[stone.status] || stone.status}</div>
                         </div>
-                      ` : ''}
+                   
                       <div class="stone-field">
                         <div class="stone-field-label">Ймовірність розчинення</div>
                         <div class="stone-field-value">${prognosisLabels[stone.prognosis] || stone.prognosis}</div>
