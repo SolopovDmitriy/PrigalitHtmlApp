@@ -74,51 +74,7 @@
       background:rgba(255,255,255,.06);
     }
 
-   /* badge */
-    .info-badge{
-      width:28px;
-      height:28px;
-      border-radius:10px;
-      display:inline-grid;
-      place-items:center;
-      font-size:16px;
-      font-weight:900;
-      color:#fff;
-      cursor:help;
-      background:linear-gradient(135deg, rgba(74,134,255,.9), rgba(60,120,255,.75));
-      box-shadow:0 6px 14px rgba(0,0,0,.25);
-      position:relative;          /* ВАЖЛИВО для tooltip */
-      flex-shrink:0;
-    }
-
-    /* tooltip */
-    .info-badge[data-tip]::after{
-      content: attr(data-tip);
-      position:absolute;
-      left:50%;
-      top:calc(100% + 8px);
-      transform:translateX(-50%);
-      min-width:220px;
-      max-width:320px;
-      padding:10px 12px;
-      border-radius:12px;
-      border:1px solid rgba(255,255,255,.14);
-      background:rgba(20,28,52,.98);
-      color:rgba(255,255,255,.92);
-      font-size:13px;
-      line-height:1.35;
-      white-space:pre-line;
-      opacity:0;
-      pointer-events:none;
-      z-index:99999;
-      box-shadow:0 14px 40px rgba(0,0,0,.28);
-    }
-
-    .info-badge:hover::after{
-      opacity:1;
-    }
-
-
+ 
 
 
 
@@ -361,66 +317,92 @@
       .thumbs{ max-width:none; max-height:260px; }
     }
 
+/* ===== Unified tooltip system ===== */
 
-        /* ===== Tooltip for disappearance details ===== */
-     .info-icon{
-      position: relative; 
-      font-size:14px;
-      font-weight:700;
-      color:rgba(255,255,255,.9);
-      cursor:help;
-      line-height:1;
-    }
+/* будь-який елемент з data-tip стає anchor для tooltip */
+[data-tip]{
+  position:relative;         /* критично для правильного позиціонування */
+}
 
+/* сама іконка ℹ (єдиний вигляд) */
+.info-icon{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  width:18px;
+  height:18px;
+  border-radius:999px;
 
+  font-size:13px;
+  font-weight:900;
+  color:rgba(255,255,255,.92);
+  cursor:help;
+  line-height:1;
 
-    .info-icon:hover{ background:rgba(255,255,255,.16); }
+  background:rgba(255,255,255,.10);
+  border:1px solid rgba(255,255,255,.14);
+}
 
-    /* tooltip bubble */
-    .info-icon[data-tip]::after{
-      content: attr(data-tip);
-      position:absolute;
-      left:50%;
-      top:calc(100% + 8px);
-      transform:translateX(-50%);
-      min-width:220px;
-      max-width:320px;
-      padding:10px 12px;
-      border-radius:12px;
-      border:1px solid rgba(255,255,255,.14);
-      background:rgba(20,28,52,.98);
-      color:rgba(255,255,255,.92);
-      font-size:13px;
-      line-height:1.35;
-      box-shadow:0 14px 40px rgba(0,0,0,.28);
-      opacity:0;
-      pointer-events:none;
-      white-space:pre-line; /* щоб переносити рядки */
-      z-index:99999;
-    }
+.info-icon:hover{
+  background:rgba(255,255,255,.16);
+}
 
-    /* маленька стрілка */
-    .info-icon[data-tip]::before{
-      content:"";
-      position:absolute;
-      left:50%;
-      top:calc(100% + 2px);
-      transform:translateX(-50%);
-      width:10px;
-      height:10px;
-      background:rgba(20,28,52,.98);
-      border-left:1px solid rgba(255,255,255,.14);
-      border-top:1px solid rgba(255,255,255,.14);
-      transform:translateX(-50%) rotate(45deg);
-      opacity:0;
-      pointer-events:none;
-      z-index:99998;
-    }
+/* tooltip bubble */
+[data-tip]::after{
+  content: attr(data-tip);
+  position:absolute;
+  left:50%;
+  top:calc(100% + 8px);
+  transform:translateX(-50%);
 
-    .info-icon[data-tip]:hover::after,
-    .info-icon[data-tip]:hover::before{
-      opacity:1;
-    }
+  min-width:220px;
+  max-width:min(320px, calc(100vw - 24px));
+  padding:10px 12px;
+
+  border-radius:12px;
+  border:1px solid rgba(255,255,255,.14);
+  background:rgba(20,28,52,.98);
+  color:rgba(255,255,255,.92);
+
+  font-size:13px;
+  line-height:1.35;
+  white-space:pre-line;
+
+  opacity:0;
+  pointer-events:none;
+  z-index:99999;
+  box-shadow:0 14px 40px rgba(0,0,0,.28);
+}
+
+/* стрілка */
+[data-tip]::before{
+  content:"";
+  position:absolute;
+  left:50%;
+  top:calc(100% + 2px);
+  transform:translateX(-50%) rotate(45deg);
+
+  width:10px;
+  height:10px;
+
+  background:rgba(20,28,52,.98);
+  border-left:1px solid rgba(255,255,255,.14);
+  border-top:1px solid rgba(255,255,255,.14);
+
+  opacity:0;
+  pointer-events:none;
+  z-index:99998;
+}
+
+/* показ на hover / focus (для клавіатури теж) */
+[data-tip]:hover::after,
+[data-tip]:hover::before,
+[data-tip]:focus-visible::after,
+[data-tip]:focus-visible::before{
+  opacity:1;
+}
+
+      
 
   </style>
 </head>
