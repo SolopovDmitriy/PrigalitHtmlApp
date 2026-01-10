@@ -496,6 +496,12 @@
       spontaneous: 'Спонтанне відходження'
     };
 
+    const stoneTypeLabels = {
+      urate: 'Уратний',
+      urate_oxalate: 'Уратно-оксалатний',
+      oxalate: 'Оксалатний'
+    };
+
     const chemicalSpecificLabels = {
       oral_chemolitholysis: 'Пероральний хемолітоліз',
       urine_alkalinization: 'Алкалізація сечі',
@@ -735,13 +741,15 @@
                           <div class="stone-field-value">Зник</div>
                         </div>
                       `}
-                      
+
+              
                       <div class="stone-field">
                         <div class="stone-field-label">Тип каменя</div>
                         <div class="stone-field-value">
-                          ${stone.stone_type || '—'}
+                          ${stoneTypeLabels[stone.stone_type] || stone.stone_type || '—'}
                         </div>
                       </div>
+
 
 
                       <div class="stone-field">
