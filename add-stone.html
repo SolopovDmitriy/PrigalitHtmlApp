@@ -246,8 +246,20 @@
               </div>
             </div>
             <div class="helper">
-              Ширина — найбільший лінійний розмір, виміряний перпендикулярно до максимальної довжини.
+              Ширина — найбільший лінійний розмір, вимірний перпендикулярно до максимальної довжини.
             </div>
+          </div>
+
+          <!-- 3.5) Тип каменя -->
+          <div class="row">
+            <div class="label">Тип каменя</div>
+            <select id="stoneType" name="stoneType" class="select">
+              <option value="" selected>Не вказано</option>
+              <option value="urate">Уратний</option>
+              <option value="urate_oxalate">Уратно-оксалатний</option>
+              <option value="oxalate">Оксалатний</option>
+            </select>
+            <div class="helper">Хімічний склад каменя (якщо відомо з аналізу).</div>
           </div>
 
           <!-- 4) Щільність -->
@@ -319,10 +331,10 @@
             <div class="label"><span class="req">*</span>Фізичний метод</div>
             <select id="physicalMethod" name="physicalMethod" class="select">
               <option value="" selected disabled>Оберіть метод</option>
-              <option value="urs">URS – уретероскопія</option>
-              <option value="rirs">RIRS – ретроградна інтраренальна хірургія</option>
-              <option value="pcnl">PCNL – перкутанна нефролітотомія</option>
-              <option value="eswl">ESWL – дистанційна ударно-хвильова літотрипсія</option>
+              <option value="urs">URS — уретероскопія</option>
+              <option value="rirs">RIRS — ретроградна інтраренальна хірургія</option>
+              <option value="pcnl">PCNL — перкутанна нефролітотомія</option>
+              <option value="eswl">ESWL — дистанційна ударно-хвильова літотрипсія</option>
               <option value="laparoscopic">Лапароскопічне видалення каменя</option>
               <option value="open_surgery">Відкрите хірургічне видалення</option>
             </select>
@@ -548,6 +560,8 @@
       setInputValue('lenMax', stone.size_mm?.length_max);
       setInputValue('widMax', stone.size_mm?.width_max);
 
+      setSelectValue(document.getElementById('stoneType'), stone.stone_type);
+
       setInputValue('huMin', stone.density_hu?.min);
       setInputValue('huMean', stone.density_hu?.mean);
       setInputValue('huMax', stone.density_hu?.max);
@@ -632,6 +646,7 @@
           organ: organ.value,
           location: locationSel.value,
           size_mm: { length_max: lenMax, width_max: widMax },
+          stone_type: document.getElementById('stoneType').value || null,
           density_hu: { min: huMin, mean: huMean, max: huMax },
           prognosis: document.getElementById('prognosis').value,
           status: statusVal,
@@ -647,45 +662,4 @@
           const methodVal = disappearanceMethod.value;
           if (methodVal === 'chemical') payload.disappearance.specific_method = document.getElementById('chemicalMethod').value;
           else if (methodVal === 'physical') payload.disappearance.specific_method = document.getElementById('physicalMethod').value;
-          else if (methodVal === 'combined') payload.disappearance.specific_method = document.getElementById('combinedMethod').value;
-        }
-
-        const existingStones = loadStones();
-
-        if (editId) {
-          const idx = existingStones.findIndex(s => s.id === editId);
-          if (idx !== -1) existingStones[idx] = payload;
-          else existingStones.push(payload);
-        } else {
-          existingStones.push(payload);
-        }
-
-        localStorage.setItem(stonesKey(), JSON.stringify(existingStones));
-
-        console.log("SAVE payload:", payload);
-        window.location.href = getReturnUrl();
-      }
-    });
-
-    function numVal(id){
-      const v = document.getElementById(id).value.trim();
-      if (v === '') return NaN;
-      return Number(v);
-    }
-
-    function renderErrors(errs){
-      errorsList.innerHTML = '';
-      if (!errs.length){
-        errorsBox.style.display = 'none';
-        return;
-      }
-      errorsBox.style.display = 'block';
-      for (const msg of errs){
-        const li = document.createElement('li');
-        li.textContent = msg;
-        errorsList.appendChild(li);
-      }
-    }
-  </script>
-</body>
-</html>
+          else if (methodVal === 'combined') payload.disappearance.specific_method = document.getElementById('combin
