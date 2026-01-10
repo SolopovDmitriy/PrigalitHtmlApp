@@ -433,7 +433,12 @@
       const day = String(d.getDate()).padStart(2, '0');
       return `${y}-${m}-${day}`;
     }
-` : 'temp_stones_v1__NO_PATIENT';
+
+    function stonesKey(){
+      const pid = getPatientId();
+      return pid
+        ? `temp_stones_v1__${pid}`
+        : 'temp_stones_v1__NO_PATIENT';
     }
 
     function getReturnUrl(){
@@ -441,6 +446,7 @@
       const pid = params.get('patient');
       return params.get('return') || (pid ? `patient-profile.html?patient=${encodeURIComponent(pid)}` : 'index.html');
     }
+
 
     function getEditId(){
       const params = new URLSearchParams(window.location.search);
