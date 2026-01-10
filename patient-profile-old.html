@@ -614,63 +614,6 @@
     let collapsedGroups = loadCollapsedGroups(patientId);
     let stonePhotos = loadStonePhotos(patientId);
 
-
-// ===== stone observations (per stone, per patient) =====
-const OBS_PREFIX = 'stone_observations_v1__';
-
-function observationsKey(stoneId){
-  return `${OBS_PREFIX}${patientId}__${stoneId}`;
-}
-
-function loadObservations(stoneId){
-  try{
-    const raw = localStorage.getItem(observationsKey(stoneId));
-    const arr = raw ? JSON.parse(raw) : [];
-    return Array.isArray(arr) ? arr : [];
-  }catch(e){
-    return [];
-  }
-}
-
-function saveObservations(stoneId, list){
-  try{
-    localStorage.setItem(observationsKey(stoneId), JSON.stringify(list || []));
-  }catch(e){}
-}
-
-function obsTimeValue(o){
-  // Prefer explicit date (YYYY-MM-DD). Fallback to created_at/timestamp.
-  if (o && o.date){
-    const t = Date.parse(o.date);
-    if (!Number.isNaN(t)) return t;
-  }
-  if (o && o.created_at){
-    const t2 = Date.parse(o.created_at);
-    if (!Number.isNaN(t2)) return t2;
-  }
-  if (o && typeof o.timestamp === 'number') return o.timestamp;
-  return 0;
-}
-
-function getLatestObservation(stoneId){
-  const list = loadObservations(stoneId);
-  if (!list.length) return null;
-  list.sort((a,b)=> obsTimeValue(b) - obsTimeValue(a));
-  return list[0];
-}
-
-function getCurrentStoneState(stone){
-  const obs = getLatestObservation(stone.id);
-  // If observations exist — take dynamic fields from there.
-  // Otherwise fall back to stone fields for backward compatibility.
-  return {
-    size_mm: (obs && obs.size_mm) ? obs.size_mm : (stone.size_mm || null),
-    status: (obs && obs.status) ? obs.status : (stone.status || null),
-    prognosis: (obs && obs.prognosis) ? obs.prognosis : (stone.prognosis || null),
-    notes: (obs && (obs.note || obs.notes)) ? (obs.note || obs.notes) : (stone.notes || '')
-  };
-}
-
     function deleteStone(stoneId) {
       if (!confirm('Ви впевнені, що хочете видалити цей камінь?')) return;
       const stones = loadStones(patientId);
@@ -704,12 +647,11 @@ function getCurrentStoneState(stone){
     }
 
     function viewNotes(stoneId) {
-  const stones = loadStones(patientId);
-  const stone = stones.find(s => s.id === stoneId);
-  const cur = stone ? getCurrentStoneState(stone) : null;
-  const notes = (cur && cur.notes) ? cur.notes : '';
-  alert(notes ? notes : 'Нотатки відсутні');
-}
+      const stones = loadStones(patientId);
+      const stone = stones.find(s => s.id === stoneId);
+      const notes = (stone && stone.notes) ? stone.notes : '';
+      alert(notes ? notes : 'Нотатки відсутні');
+    }
 
     function editStone(stoneId) {
       // add-stone.html очікує return та edit
@@ -725,20 +667,17 @@ function getCurrentStoneState(stone){
 
     // ===== grouping =====
     function groupStones(stones) {
-  const groups = {};
-  stones.forEach((stone) => {
-    const cur = getCurrentStoneState(stone);
-    const curStatus = cur.status || stone.status;
+      const groups = {};
+      stones.forEach((stone) => {
+        let groupKey, groupTitle;
+        if (stone.status === 'resolved') { groupKey='resolved'; groupTitle='Завершені камені (зниклі)'; }
+        else { groupKey = stone.organ; groupTitle = organLabels[stone.organ] || stone.organ; }
 
-    let groupKey, groupTitle;
-    if (curStatus === 'resolved') { groupKey='resolved'; groupTitle='Завершені камені (зниклі)'; }
-    else { groupKey = stone.organ; groupTitle = organLabels[stone.organ] || stone.organ; }
-
-    if (!groups[groupKey]) groups[groupKey] = { title: groupTitle, stones: [] };
-    groups[groupKey].stones.push(stone);
-  });
-  return groups;
-}
+        if (!groups[groupKey]) groups[groupKey] = { title: groupTitle, stones: [] };
+        groups[groupKey].stones.push(stone);
+      });
+      return groups;
+    }
 
     function toggleGroup(groupKey) {
       collapsedGroups[groupKey] = !collapsedGroups[groupKey];
@@ -812,7 +751,7 @@ function getCurrentStoneState(stone){
                       `}
                       <div class="stone-field">
                         <div class="stone-field-label">Розмір (мм)</div>
-                        <div class="stone-field-value">${(getCurrentStoneState(stone).size_mm?.length_max ?? '—')} × ${(getCurrentStoneState(stone).size_mm?.width_max ?? '—')} </div>
+                        <div class="stone-field-value">${stone.size_mm.length_max} × ${stone.size_mm.width_max} </div>
                       </div>                     
                       <div class="stone-field">
                         <div class="stone-field-label">Щільність (HU)</div>
@@ -825,7 +764,7 @@ function getCurrentStoneState(stone){
                       ${groupKey !== 'resolved' ? `
                         <div class="stone-field">
                           <div class="stone-field-label">Статус</div>
-                          <div class="stone-field-value">${statusLabels[getCurrentStoneState(stone).status] || getCurrentStoneState(stone).status}</div>
+                          <div class="stone-field-value">${statusLabels[stone.status] || stone.status}</div>
                         </div>
                       ` : `
                         <div class="stone-field">
@@ -849,7 +788,7 @@ function getCurrentStoneState(stone){
 
                       <div class="stone-field">
                         <div class="stone-field-label">Ймовірність розчинення</div>
-                        <div class="stone-field-value">${prognosisLabels[getCurrentStoneState(stone).prognosis] || getCurrentStoneState(stone).prognosis}</div>
+                        <div class="stone-field-value">${prognosisLabels[stone.prognosis] || stone.prognosis}</div>
                       </div>
                     </div>
 
