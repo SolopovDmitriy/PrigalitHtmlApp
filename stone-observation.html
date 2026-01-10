@@ -1,0 +1,464 @@
+<!doctype html>
+<html lang="uk">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Спостереження за каменем</title>
+  <style>
+
+    :root{
+      --bg1:#6f8fb9;
+      --bg2:#3459b6;
+
+      --panel:rgba(255,255,255,.06);
+      --panel2:rgba(255,255,255,.10);
+      --stroke:rgba(255,255,255,.14);
+
+      --text:rgba(255,255,255,.92);
+      --muted:rgba(255,255,255,.72);
+
+      --white:#fff;
+
+      --btn:#4a86ff;
+      --btn2:#3c78ff;
+      --danger:#ff6a5f;
+
+      --radius:22px;
+      --radius2:14px;
+
+      --shadow:0 30px 90px rgba(0,0,0,.25);
+    }
+
+    *{ box-sizing:border-box; }
+
+    body{
+      margin:0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      background:
+        radial-gradient(1200px 600px at 20% 10%, rgba(255,255,255,.22), transparent 50%),
+        linear-gradient(180deg, var(--bg1), var(--bg2));
+      color:var(--text);
+      min-height:100vh;
+      padding:22px;
+    }
+
+    .frame{
+      width:min(1500px, 100%);
+      margin:0 auto;
+      background:rgba(255,255,255,.06);
+      border:1px solid rgba(255,255,255,.10);
+      border-radius:22px;
+      box-shadow:var(--shadow);
+      padding:18px;
+      overflow:hidden;
+    }
+
+    .content{
+      background:rgba(255,255,255,.06);
+      border:1px solid rgba(255,255,255,.10);
+      border-radius:22px;
+      padding:26px;
+      max-height: 640px;
+      overflow:auto;
+    }
+
+    .header{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:14px;
+      margin-bottom:18px;
+    }
+
+    h1{
+      font-size:44px;
+      font-weight:800;
+      letter-spacing:.2px;
+      margin:0;
+      color:rgba(255,255,255,.92);
+      text-shadow:0 2px 14px rgba(0,0,0,.18);
+    }
+
+    .close{
+      border:1px solid rgba(255,255,255,.18);
+      background:rgba(255,255,255,.08);
+      color:rgba(255,255,255,.90);
+      width:44px;
+      height:44px;
+      border-radius:14px;
+      cursor:pointer;
+      font-size:22px;
+      display:grid;
+      place-items:center;
+    }
+    .close:hover{ background:rgba(255,255,255,.12); }
+
+    .grid{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:18px 22px;
+      align-items:start;
+    }
+
+    .row{ grid-column:1 / -1; }
+
+    .label{
+      font-size:18px;
+      font-weight:700;
+      color:rgba(255,255,255,.90);
+      display:flex;
+      gap:10px;
+      align-items:center;
+      margin-bottom:10px;
+    }
+    .req{
+      color:var(--danger);
+      font-weight:900;
+      margin-right:6px;
+    }
+
+    .input, .select{
+      width:100%;
+      border:1px solid var(--stroke);
+      background:rgba(255,255,255,.08);
+      color:rgba(255,255,255,.92);
+      border-radius:12px;
+      padding:14px 16px;
+      outline:none;
+      font-size:18px;
+    }
+    .input::placeholder{ color:rgba(255,255,255,.55); }
+    .select option{ color:#0f172a; }
+
+    .subgrid-2{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:12px;
+    }
+    .subgrid-3{
+      display:grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap:12px;
+    }
+
+    .helper{
+      font-size:14px;
+      color:rgba(255,255,255,.70);
+      margin-top:10px;
+      line-height:1.35;
+    }
+
+    .errors{
+      display:none;
+      margin-top:10px;
+      padding:12px 14px;
+      border:1px solid rgba(255,106,95,.35);
+      background:rgba(255,106,95,.10);
+      border-radius:14px;
+      color:rgba(255,255,255,.92);
+    }
+    .errors ul{ margin:0; padding-left:18px; }
+
+    .footer{
+      display:flex;
+      justify-content:flex-end;
+      gap:12px;
+      margin-top:18px;
+      padding-top:16px;
+      border-top:1px solid rgba(255,255,255,.12);
+    }
+
+    .btn{
+      border:1px solid rgba(255,255,255,.18);
+      background:rgba(255,255,255,.08);
+      color:rgba(255,255,255,.92);
+      padding:14px 18px;
+      border-radius:14px;
+      cursor:pointer;
+      font-weight:800;
+      font-size:16px;
+      min-width:140px;
+    }
+    .btn:hover{ background:rgba(255,255,255,.12); }
+
+    .btn-primary{
+      border-color:rgba(255,255,255,.22);
+      background:linear-gradient(180deg, rgba(74,134,255,.65), rgba(60,120,255,.40));
+      box-shadow:0 10px 22px rgba(0,0,0,.18);
+    }
+    .btn-primary:hover{ filter:brightness(1.03); }
+
+    .hidden{ display:none !important; }
+
+    @media (max-width: 980px){
+      .grid{ grid-template-columns:1fr; }
+      .subgrid-3{ grid-template-columns:1fr; }
+      .subgrid-2{ grid-template-columns:1fr; }
+      h1{ font-size:34px; }
+    }
+  
+  </style>
+</head>
+
+<body>
+  <div class="frame">
+    <div class="content">
+      <div class="header">
+        <div>
+          <h1 id="pageTitle">Додати спостереження</h1>
+          <div class="helper" id="stoneHint" style="margin-top:10px;"></div>
+        </div>
+        <button class="close" type="button" aria-label="Закрити" onclick="closePage()">×</button>
+      </div>
+
+      <form id="obsForm" novalidate>
+        <div class="grid">
+
+          <!-- 1) Дата -->
+          <div class="row">
+            <div class="label"><span class="req">*</span>Дата спостереження</div>
+            <input id="obsDate" name="obsDate" class="input" type="date" required>
+            <div class="helper">Дата контрольного огляду/візуалізації.</div>
+          </div>
+
+          <!-- 2) Метод -->
+          <div class="row">
+            <div class="label"><span class="req">*</span>Метод візуалізації</div>
+            <select id="modality" name="modality" class="select" required>
+              <option value="" selected disabled>Оберіть метод</option>
+              <option value="us">УЗД</option>
+              <option value="ct">КТ</option>
+              <option value="xray">Рентген</option>
+              <option value="other">Інше</option>
+            </select>
+          </div>
+
+          <!-- 3) Розмір -->
+          <div class="row">
+            <div class="label"><span class="req">*</span>Розмір каменя на дату, мм</div>
+            <div class="subgrid-2">
+              <div>
+                <div class="label" style="font-size:16px;margin-bottom:10px;"><span style="width:0;"></span>Максимальна довжина</div>
+                <input id="lenMax" name="lenMax" class="input" type="number" inputmode="decimal" min="0" step="0.1" placeholder="напр. 8" required>
+              </div>
+              <div>
+                <div class="label" style="font-size:16px;margin-bottom:10px;"><span style="width:0;"></span>Максимальна ширина</div>
+                <input id="widMax" name="widMax" class="input" type="number" inputmode="decimal" min="0" step="0.1" placeholder="напр. 5" required>
+              </div>
+            </div>
+          </div>
+
+          <!-- 4) Статус -->
+          <div class="row">
+            <div class="label"><span class="req">*</span>Статус каменя на дату</div>
+            <select id="status" name="status" class="select" required>
+              <option value="active">Активний</option>
+              <option value="shrinking">Зменшується</option>
+              <option value="no_response">Без відповіді</option>
+              <option value="resolved">Зник</option>
+            </select>
+            <div class="helper">Якщо камінь зник — можна зберегти статус “Зник” в спостереженні, а детальний спосіб/дата зникнення лишається в картці каменя.</div>
+          </div>
+
+          <!-- 5) Нотатки -->
+          <div class="row">
+            <div class="label">Нотатки</div>
+            <textarea id="notes" name="notes" class="input" rows="4" placeholder="Опис динаміки, джерело даних (УЗД/КТ), коментарі..." style="resize:vertical; min-height:100px; font-family:inherit;"></textarea>
+          </div>
+
+          <div class="row errors" id="errors">
+            <ul id="errorsList"></ul>
+          </div>
+        </div>
+
+        <div class="footer">
+          <button class="btn" type="button" onclick="closePage()">Відмінити</button>
+          <button class="btn btn-primary" id="saveBtn" type="submit">Зберегти</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    // ==== params ====
+    function qs(name){
+      return new URLSearchParams(window.location.search).get(name) || '';
+    }
+    function getPatientId(){ return qs('patient'); }
+    function getStoneId(){ return qs('stone'); }
+    function getEditObsId(){ return qs('edit'); }
+    function getReturnUrl(){
+      const r = qs('return');
+      if (r) return r;
+      const pid = getPatientId();
+      return pid ? `patient-profile.html?patient=${encodeURIComponent(pid)}` : 'index.html';
+    }
+    function closePage(){ window.location.href = getReturnUrl(); }
+
+    function stonesKey(pid){ return pid ? `temp_stones_v1__${pid}` : 'temp_stones_v1__NO_PATIENT'; }
+    function obsKey(pid, stoneId){ 
+      if (!pid) return 'stone_observations_v1__NO_PATIENT__NO_STONE';
+      if (!stoneId) return `stone_observations_v1__${pid}__NO_STONE`;
+      return `stone_observations_v1__${pid}__${stoneId}`;
+    }
+
+    function loadStones(pid){
+      const data = localStorage.getItem(stonesKey(pid));
+      return data ? JSON.parse(data) : [];
+    }
+    function loadObservations(pid, stoneId){
+      const data = localStorage.getItem(obsKey(pid, stoneId));
+      return data ? JSON.parse(data) : [];
+    }
+    function saveObservations(pid, stoneId, arr){
+      localStorage.setItem(obsKey(pid, stoneId), JSON.stringify(arr));
+    }
+
+    function makeObsId(){
+      if (window.crypto && crypto.randomUUID) return crypto.randomUUID();
+      return 'obs_' + Date.now() + '_' + Math.random().toString(16).slice(2);
+    }
+
+    function renderErrors(errs){
+      const box = document.getElementById('errors');
+      const list = document.getElementById('errorsList');
+      list.innerHTML = '';
+      if (!errs.length){
+        box.style.display = 'none';
+        return;
+      }
+      box.style.display = 'block';
+      for (const msg of errs){
+        const li = document.createElement('li');
+        li.textContent = msg;
+        list.appendChild(li);
+      }
+    }
+
+    function numVal(id){
+      const v = document.getElementById(id).value.trim();
+      if (v === '') return NaN;
+      return Number(v);
+    }
+
+    // ==== init ====
+    const pid = getPatientId();
+    const stoneId = getStoneId();
+    const editObsId = getEditObsId();
+
+    const stones = loadStones(pid);
+    const stone = stones.find(s => s.id === stoneId);
+
+    const organLabels = {
+      RK: 'Права нирка',
+      LK: 'Ліва нирка',
+      RU: 'Правий сечовід',
+      LU: 'Лівий сечовід',
+      BL: 'Сечовий міхур'
+    };
+    const stoneTypeLabels = {
+      urate: 'Уратний',
+      urate_oxalate: 'Уратно-оксалатний',
+      oxalate: 'Оксалатний'
+    };
+
+    if (!pid || !stoneId){
+      document.getElementById('stoneHint').textContent = 'Помилка: не передано patient або stone у URL.';
+    } else if (!stone){
+      document.getElementById('stoneHint').textContent = 'Камінь не знайдено. Переконайтесь, що він доданий для цього пацієнта.';
+    } else {
+      const organText = organLabels[stone.organ] || stone.organ || '—';
+      const locText = stone.location || '—';
+      const typeText = stoneTypeLabels[stone.stone_type] || stone.stone_type || '—';
+      document.getElementById('stoneHint').textContent = `Камінь: ${organText} · ${locText} · тип: ${typeText}`;
+    }
+
+    // default date = today
+    (function setToday(){
+      const d = new Date();
+      const yyyy = d.getFullYear();
+      const mm = String(d.getMonth()+1).padStart(2,'0');
+      const dd = String(d.getDate()).padStart(2,'0');
+      document.getElementById('obsDate').value = `${yyyy}-${mm}-${dd}`;
+    })();
+
+    // edit mode
+    (function initEdit(){
+      if (!editObsId) return;
+      document.getElementById('pageTitle').textContent = 'Редагування спостереження';
+      document.getElementById('saveBtn').textContent = 'Зберегти зміни';
+
+      const obs = loadObservations(pid, stoneId);
+      const one = obs.find(o => o.id === editObsId);
+      if (!one) return;
+
+      document.getElementById('obsDate').value = one.date || '';
+      document.getElementById('modality').value = one.modality || '';
+      document.getElementById('lenMax').value = one.size_mm?.length_max ?? '';
+      document.getElementById('widMax').value = one.size_mm?.width_max ?? '';
+      document.getElementById('status').value = one.status || 'active';
+      document.getElementById('notes').value = one.note || '';
+    })();
+
+    // ==== submit ====
+    document.getElementById('obsForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const errs = [];
+
+      if (!pid) errs.push('Немає patient у URL.');
+      if (!stoneId) errs.push('Немає stone у URL.');
+      if (!stone) errs.push('Камінь не знайдено для цього пацієнта.');
+
+      const dateVal = document.getElementById('obsDate').value;
+      const modalityVal = document.getElementById('modality').value;
+
+      const lenMax = numVal('lenMax');
+      const widMax = numVal('widMax');
+
+      if (!dateVal) errs.push('Вкажіть дату спостереження.');
+      if (!modalityVal) errs.push('Оберіть метод візуалізації.');
+
+      if (!isFinite(lenMax) || lenMax <= 0) errs.push('Максимальна довжина має бути числом > 0.');
+      if (!isFinite(widMax) || widMax <= 0) errs.push('Максимальна ширина має бути числом > 0.');
+      if (isFinite(lenMax) && isFinite(widMax) && widMax > lenMax) errs.push('Максимальна ширина не може бути більшою за максимальну довжину.');
+
+      renderErrors(errs);
+      if (errs.length) return;
+
+      const payload = {
+        id: editObsId || makeObsId(),
+        created_at: editObsId ? undefined : new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+        date: dateVal,
+        modality: modalityVal,
+        size_mm: { length_max: lenMax, width_max: widMax },
+        status: document.getElementById('status').value,
+        note: document.getElementById('notes').value.trim()
+      };
+
+      const all = loadObservations(pid, stoneId);
+
+      if (editObsId){
+        const idx = all.findIndex(o => o.id === editObsId);
+        if (idx !== -1) {
+          // preserve created_at if existed
+          payload.created_at = all[idx].created_at || payload.created_at;
+          all[idx] = payload;
+        } else {
+          all.push(payload);
+        }
+      } else {
+        all.push(payload);
+      }
+
+      // sort by date (asc)
+      all.sort((a,b) => String(a.date).localeCompare(String(b.date)));
+
+      saveObservations(pid, stoneId, all);
+
+      console.log('SAVE observation:', payload);
+      window.location.href = getReturnUrl();
+    });
+  </script>
+</body>
+</html>

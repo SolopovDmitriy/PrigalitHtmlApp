@@ -232,6 +232,23 @@
             <div class="helper">Список локалізацій залежить від обраного органа.</div>
           </div>
 
+
+          <!-- 2.1) Тип каменя -->
+          <div class="row">
+            <div class="label"><span class="req">*</span>Тип каменя</div>
+            <select id="stoneType" name="stoneType" class="select" required>
+              <option value="" disabled selected>Оберіть тип каменя</option>
+
+              <option value="urate">Уратний</option>
+              <option value="urate_oxalate">Уратно-оксалатний</option>
+              <option value="oxalate">Оксалатний</option>
+            </select>
+
+            <div class="helper">
+              Тип каменя визначається за клінічними, лабораторними або КТ-ознаками.
+            </div>
+          </div>
+
           <!-- 3) Розмір -->
           <div class="row">
             <div class="label"><span class="req">*</span>Розмір каменя, мм</div>
@@ -520,7 +537,6 @@
 
     // ==== edit mode init ====
     const editId = getEditId();
-    let existingCreatedAt = null;
 
     function setSelectValue(el, val){
       if (!el || val == null) return;
@@ -542,11 +558,11 @@
       const stone = stones.find(s => s.id === editId);
       if (!stone) return;
 
-      existingCreatedAt = stone.created_at || null;
-
       setSelectValue(organ, stone.organ);
       organ.dispatchEvent(new Event('change'));
       setSelectValue(locationSel, stone.location);
+      setSelectValue(document.getElementById('stoneType'), stone.stone_type);
+
 
       setInputValue('lenMax', stone.size_mm?.length_max);
       setInputValue('widMax', stone.size_mm?.width_max);
@@ -592,6 +608,10 @@
 
       if (!organ.value) errs.push("Оберіть орган.");
       if (!locationSel.value) errs.push("Оберіть локалізацію каменя.");
+
+      const stoneType = document.getElementById('stoneType').value;
+      if (!stoneType) errs.push("Оберіть тип каменя.");
+
       if (!isFinite(lenMax) || lenMax <= 0) errs.push("Максимальна довжина має бути числом > 0.");
       if (!isFinite(widMax) || widMax <= 0) errs.push("Максимальна ширина має бути числом > 0.");
 
@@ -632,10 +652,9 @@
       if (errs.length === 0) {
         const payload = {
           id: editId || makeStoneId(),
-          created_at: existingCreatedAt || new Date().toISOString(),
-          updated_at: new Date().toISOString(),
           organ: organ.value,
           location: locationSel.value,
+          stone_type: stoneType,
           size_mm: { length_max: lenMax, width_max: widMax },
           density_hu: { min: huMin, mean: huMean, max: huMax },
           prognosis: document.getElementById('prognosis').value,
@@ -663,34 +682,6 @@
           else existingStones.push(payload);
         } else {
           existingStones.push(payload);
-        }
-
-        // --- baseline observation (only when creating a new stone) ---
-        const pid = getPatientId();
-        if (!editId && pid) {
-          const obsKey = `stone_observations_v1__${pid}__${payload.id}`;
-          if (!localStorage.getItem(obsKey)) {
-            const today = new Date();
-            const yyyy = today.getFullYear();
-            const mm = String(today.getMonth() + 1).padStart(2, '0');
-            const dd = String(today.getDate()).padStart(2, '0');
-            const dateStr = `${yyyy}-${mm}-${dd}`;
-
-            const obsId = (window.crypto && crypto.randomUUID)
-              ? crypto.randomUUID()
-              : ('obs_' + Date.now() + '_' + Math.random().toString(16).slice(2));
-
-            const baselineObs = [{
-              id: obsId,
-              date: dateStr,
-              modality: 'baseline',
-              size_mm: { length_max: lenMax, width_max: widMax },
-              status: statusVal,
-              note: 'Базове значення (створено з форми додавання каменя).'
-            }];
-
-            localStorage.setItem(obsKey, JSON.stringify(baselineObs));
-          }
         }
 
         localStorage.setItem(stonesKey(), JSON.stringify(existingStones));
