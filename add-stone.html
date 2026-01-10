@@ -438,8 +438,10 @@
 
     function getReturnUrl(){
       const params = new URLSearchParams(window.location.search);
-      return params.get('return') || (params.get('patient') ? `patient-profile.html?patient=${encodeURIComponent(params.get('patient'))}` : 'index.html.html');
+      const pid = params.get('patient');
+      return params.get('return') || (pid ? `patient-profile.html?patient=${encodeURIComponent(pid)}` : 'index.html');
     }
+
     function getEditId(){
       const params = new URLSearchParams(window.location.search);
       return params.get('edit'); // stoneId
