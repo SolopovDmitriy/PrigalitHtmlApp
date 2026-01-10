@@ -496,11 +496,20 @@
       spontaneous: 'Спонтанне відходження'
     };
 
+
     const stoneTypeLabels = {
       urate: 'Уратний',
       urate_oxalate: 'Уратно-оксалатний',
-      oxalate: 'Оксалатний'
+      oxalate: 'Оксалатний',
+      phosphate: 'Фосфатний'
     };
+
+
+    const treatmentTypeLabels = {
+      treatment: 'Лікування',
+      prevention: 'Профілактика'
+    };
+
 
     const chemicalSpecificLabels = {
       oral_chemolitholysis: 'Пероральний хемолітоліз',
@@ -574,9 +583,15 @@
       if (cond.custom) condList.push(cond.custom);
 
       const extrasKv = document.getElementById('extrasKv');
-      extrasKv.innerHTML = [
-        kvRow('Тип лікування', extras.treatment_type || '—'),
-        kvRow('Тип каменю', extras.stone_type || '—'),
+      extrasKv.innerHTML = [ 
+        kvRow(
+          'Тип лікування',
+          treatmentTypeLabels[extras.treatment_type] || extras.treatment_type || '—'
+        ),
+        kvRow(
+          'Тип каменю',
+          stoneTypeLabels[extras.stone_type] || extras.stone_type || '—'
+        ),
         kvRow('Дата початку спостереження', extras.start_date || '—'),
         kvRow('Супутні стани', condList.length ? condList.join('; ') : '—'),
       ].join('');
