@@ -392,9 +392,13 @@
       const params = new URLSearchParams(window.location.search);
       return params.get('patient') || '';
     }
-    function stonesKey(){
+     function stonesKey(){
       const pid = getPatientId();
-      return pid ? `temp_stones_v1__${pid}
+      return pid
+        ? `temp_stones_v1__${pid}`
+        : 'temp_stones_v1__NO_PATIENT';
+    }
+
     // --- Stone observations (time-series) ---
     function observationsKey(stoneId){
       const pid = getPatientId();
@@ -402,6 +406,7 @@
         ? `stone_observations_v1__${pid}__${stoneId}`
         : `stone_observations_v1__NO_PATIENT__${stoneId}`;
     }
+
 
     function loadObservations(stoneId){
       try{
