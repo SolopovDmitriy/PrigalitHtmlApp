@@ -658,6 +658,13 @@
       window.location.href = `add-stone.html?return=patient-profile.html%3Fpatient%3D${encodeURIComponent(patientId)}&patient=${encodeURIComponent(patientId)}&edit=${encodeURIComponent(stoneId)}`;
     }
 
+
+    function addObservation(stoneId){
+      window.location.href =
+        `stone-observation.html?patient=${encodeURIComponent(patientId)}&stone=${encodeURIComponent(stoneId)}&return=patient-profile.html%3Fpatient%3D${encodeURIComponent(patientId)}`;
+    }
+
+
     // ===== grouping =====
     function groupStones(stones) {
       const groups = {};
@@ -786,6 +793,12 @@
                     </div>
 
                     <div class="stone-actions">
+                      <button class="btn-icon"
+                              onclick="addObservation('${stone.id}')"
+                              title="Додати спостереження">
+                        📅
+                      </button>
+
                       <button class="btn-icon" onclick="editStone('${stone.id}')" title="Редагувати">✎</button>
 
                       <button class="btn-icon" title="Завантажити фото">
@@ -948,6 +961,7 @@
     // globals for inline onclick
     window.deleteStone = deleteStone;
     window.editStone = editStone;
+    window.addObservation = addObservation;
     window.toggleGroup = toggleGroup;
     window.uploadPhotos = uploadPhotos;
     window.viewNotes = viewNotes;
