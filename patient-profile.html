@@ -510,6 +510,14 @@
       prevention: 'Профілактика'
     };
 
+    const profileLabels = {
+      urology: 'Урологічний',
+      cardiology: 'Кардіологічний',
+      endocrinology: 'Ендокринологічний',
+      rheumatology: 'Ревматологічний'
+    };
+
+
 
     const chemicalSpecificLabels = {
       oral_chemolitholysis: 'Пероральний хемолітоліз',
@@ -569,7 +577,11 @@
       kvRow('Телефон', patient.phone),
       kvRow('Зріст', patient.height_cm ? `${patient.height_cm} см` : '—'),
       kvRow('Часовий пояс', patient.timezone),
-      kvRow('Профіль', patient.profile),
+      kvRow(
+        'Профіль',
+        profileLabels[patient.profile] || patient.profile || '—'
+      ),
+
     ].join('');
 
     // extras summary
