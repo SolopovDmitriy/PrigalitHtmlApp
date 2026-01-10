@@ -1,0 +1,563 @@
+<!doctype html>
+<html lang="uk">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Спостереження за каменем</title>
+  <style>
+    :root{
+      --bg1:#6f8fb9;
+      --bg2:#3459b6;
+      --panel:rgba(255,255,255,.06);
+      --stroke:rgba(255,255,255,.14);
+      --text:rgba(255,255,255,.92);
+      --muted:rgba(255,255,255,.72);
+      --btn:#4a86ff;
+      --danger:#ff6a5f;
+      --radius:22px;
+      --shadow:0 30px 90px rgba(0,0,0,.25);
+    }
+
+    *{ box-sizing:border-box; }
+
+    body{
+      margin:0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      background:
+        radial-gradient(1200px 600px at 20% 10%, rgba(255,255,255,.22), transparent 50%),
+        linear-gradient(180deg, var(--bg1), var(--bg2));
+      color:var(--text);
+      min-height:100vh;
+      padding:22px;
+    }
+
+    .frame{
+      width:min(1500px, 100%);
+      margin:0 auto;
+      background:rgba(255,255,255,.06);
+      border:1px solid rgba(255,255,255,.10);
+      border-radius:22px;
+      box-shadow:var(--shadow);
+      padding:18px;
+    }
+
+    .content{
+      background:rgba(255,255,255,.06);
+      border:1px solid rgba(255,255,255,.10);
+      border-radius:22px;
+      padding:26px;
+      max-height: calc(100vh - 80px);
+      overflow:auto;
+    }
+
+    .header{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:14px;
+      margin-bottom:18px;
+      flex-wrap:wrap;
+    }
+
+    h1{
+      font-size:38px;
+      font-weight:800;
+      letter-spacing:.2px;
+      margin:0;
+      color:rgba(255,255,255,.92);
+      text-shadow:0 2px 14px rgba(0,0,0,.18);
+    }
+
+    .stone-info{
+      background:rgba(255,255,255,.08);
+      border:1px solid rgba(255,255,255,.14);
+      border-radius:14px;
+      padding:16px 20px;
+      margin-bottom:20px;
+      display:flex;
+      gap:24px;
+      flex-wrap:wrap;
+      align-items:center;
+    }
+
+    .stone-info-item{
+      display:flex;
+      flex-direction:column;
+      gap:4px;
+    }
+
+    .stone-info-label{
+      font-size:13px;
+      color:rgba(255,255,255,.65);
+      font-weight:700;
+    }
+
+    .stone-info-value{
+      font-size:17px;
+      color:rgba(255,255,255,.92);
+      font-weight:800;
+    }
+
+    .toolbar{
+      display:flex;
+      gap:12px;
+      margin-bottom:20px;
+      flex-wrap:wrap;
+    }
+
+    .btn{
+      border:1px solid rgba(255,255,255,.18);
+      background:rgba(255,255,255,.08);
+      color:rgba(255,255,255,.92);
+      padding:14px 18px;
+      border-radius:14px;
+      cursor:pointer;
+      font-weight:800;
+      font-size:16px;
+      text-decoration:none;
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+    }
+    .btn:hover{ background:rgba(255,255,255,.12); }
+
+    .btn-primary{
+      border-color:rgba(255,255,255,.22);
+      background:linear-gradient(180deg, rgba(74,134,255,.65), rgba(60,120,255,.40));
+      box-shadow:0 10px 22px rgba(0,0,0,.18);
+    }
+    .btn-primary:hover{ filter:brightness(1.05); }
+
+    .timeline{
+      position:relative;
+      padding-left:40px;
+    }
+
+    .timeline::before{
+      content:'';
+      position:absolute;
+      left:18px;
+      top:0;
+      bottom:0;
+      width:3px;
+      background:linear-gradient(180deg, rgba(74,134,255,.45), rgba(60,120,255,.25));
+      border-radius:999px;
+    }
+
+    .obs-card{
+      position:relative;
+      margin-bottom:24px;
+      background:rgba(255,255,255,.06);
+      border:1px solid rgba(255,255,255,.12);
+      border-radius:14px;
+      padding:20px;
+      transition:all .2s;
+    }
+
+    .obs-card:hover{
+      background:rgba(255,255,255,.08);
+      border-color:rgba(255,255,255,.18);
+    }
+
+    .obs-card::before{
+      content:'';
+      position:absolute;
+      left:-30px;
+      top:24px;
+      width:14px;
+      height:14px;
+      background:linear-gradient(135deg, rgba(74,134,255,.85), rgba(60,120,255,.65));
+      border:3px solid rgba(20,28,52,.96);
+      border-radius:50%;
+      box-shadow:0 0 0 3px rgba(74,134,255,.25);
+    }
+
+    .obs-header{
+      display:flex;
+      justify-content:space-between;
+      align-items:flex-start;
+      gap:14px;
+      margin-bottom:14px;
+    }
+
+    .obs-date{
+      font-size:22px;
+      font-weight:900;
+      color:rgba(255,255,255,.92);
+    }
+
+    .obs-modality{
+      display:inline-flex;
+      align-items:center;
+      padding:6px 12px;
+      border-radius:8px;
+      background:rgba(255,255,255,.10);
+      border:1px solid rgba(255,255,255,.14);
+      font-size:14px;
+      font-weight:800;
+    }
+
+    .obs-grid{
+      display:grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap:14px;
+      margin-bottom:12px;
+    }
+
+    .obs-field{
+      display:flex;
+      flex-direction:column;
+      gap:4px;
+    }
+
+    .obs-field-label{
+      font-size:13px;
+      color:rgba(255,255,255,.65);
+      font-weight:700;
+    }
+
+    .obs-field-value{
+      font-size:16px;
+      color:rgba(255,255,255,.92);
+      font-weight:800;
+    }
+
+    .obs-note{
+      margin-top:12px;
+      padding:12px;
+      background:rgba(255,255,255,.04);
+      border-radius:10px;
+      border:1px solid rgba(255,255,255,.08);
+      font-size:14px;
+      line-height:1.5;
+      color:rgba(255,255,255,.82);
+    }
+
+    .obs-actions{
+      display:flex;
+      gap:8px;
+      margin-top:14px;
+    }
+
+    .btn-icon{
+      width:38px;
+      height:38px;
+      border-radius:10px;
+      border:1px solid rgba(255,255,255,.18);
+      background:rgba(255,255,255,.08);
+      color:rgba(255,255,255,.92);
+      display:grid;
+      place-items:center;
+      cursor:pointer;
+      font-size:18px;
+    }
+    .btn-icon:hover{ background:rgba(255,255,255,.14); }
+
+    .btn-icon.danger{
+      border-color:rgba(255,106,95,.35);
+      background:rgba(255,106,95,.15);
+    }
+    .btn-icon.danger:hover{ background:rgba(255,106,95,.25); }
+
+    .empty-state{
+      text-align:center;
+      padding:60px 20px;
+      color:rgba(255,255,255,.65);
+    }
+
+    .empty-state-icon{
+      font-size:64px;
+      margin-bottom:16px;
+    }
+
+    .empty-state-title{
+      font-size:22px;
+      font-weight:800;
+      margin-bottom:8px;
+      color:rgba(255,255,255,.82);
+    }
+
+    .empty-state-text{
+      font-size:16px;
+      margin-bottom:24px;
+    }
+
+    .status-badge{
+      display:inline-flex;
+      align-items:center;
+      padding:4px 10px;
+      border-radius:8px;
+      font-size:13px;
+      font-weight:800;
+    }
+
+    .status-active{
+      background:rgba(74,134,255,.18);
+      border:1px solid rgba(74,134,255,.35);
+      color:rgba(150,190,255,.95);
+    }
+
+    .status-shrinking{
+      background:rgba(255,193,7,.18);
+      border:1px solid rgba(255,193,7,.35);
+      color:rgba(255,220,100,.95);
+    }
+
+    .status-no_response{
+      background:rgba(255,106,95,.18);
+      border:1px solid rgba(255,106,95,.35);
+      color:rgba(255,160,150,.95);
+    }
+
+    .status-resolved{
+      background:rgba(76,175,80,.18);
+      border:1px solid rgba(76,175,80,.35);
+      color:rgba(150,230,155,.95);
+    }
+
+    .helper{
+      font-size:14px;
+      color:rgba(255,255,255,.70);
+      margin-top:10px;
+      line-height:1.35;
+    }
+
+    @media (max-width: 980px){
+      h1{ font-size:28px; }
+      .obs-grid{ grid-template-columns:1fr; }
+      .stone-info{ flex-direction:column; gap:12px; align-items:flex-start; }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="frame">
+    <div class="content">
+      <div class="header">
+        <h1>📊 Спостереження за каменем</h1>
+      </div>
+
+      <div class="stone-info" id="stoneInfo"></div>
+
+      <div class="toolbar">
+        <a class="btn" id="backBtn" href="#">← Назад до профілю</a>
+        <a class="btn btn-primary" id="addObsBtn" href="#">+ Додати спостереження</a>
+      </div>
+
+      <div class="helper" style="margin-bottom:20px;">
+        Записи відсортовані від найновіших до найстаріших. Кожне спостереження фіксує розмір, статус та інші параметри каменю на конкретну дату.
+      </div>
+
+      <div id="timelineContainer"></div>
+    </div>
+  </div>
+
+  <script>
+    // ==== params ====
+    function qs(name){
+      return new URLSearchParams(window.location.search).get(name) || '';
+    }
+    const patientId = qs('patient');
+    const stoneId = qs('stone');
+
+    function stonesKey(pid){ return pid ? `temp_stones_v1__${pid}` : 'temp_stones_v1__NO_PATIENT'; }
+    function obsKey(pid, sid){ 
+      if (!pid) return 'stone_observations_v1__NO_PATIENT__NO_STONE';
+      if (!sid) return `stone_observations_v1__${pid}__NO_STONE`;
+      return `stone_observations_v1__${pid}__${sid}`;
+    }
+
+    function loadStones(pid){
+      const data = localStorage.getItem(stonesKey(pid));
+      return data ? JSON.parse(data) : [];
+    }
+
+    function loadObservations(pid, sid){
+      const data = localStorage.getItem(obsKey(pid, sid));
+      return data ? JSON.parse(data) : [];
+    }
+
+    function saveObservations(pid, sid, arr){
+      localStorage.setItem(obsKey(pid, sid), JSON.stringify(arr));
+    }
+
+    // ==== labels ====
+    const organLabels = {
+      RK:'Права нирка', LK:'Ліва нирка', RU:'Правий сечовід', 
+      LU:'Лівий сечовід', BL:'Сечовий міхур'
+    };
+    const locationLabels = {
+      upper_calyx:'Верхня чашечка', middle_calyx:'Середня чашечка', 
+      lower_calyx:'Нижня чашечка', renal_pelvis:'Миска', upj:'UPJ',
+      ureter_proximal:'Проксимальна частина', ureter_middle:'Середня частина',
+      ureter_distal:'Дистальна частина', uvj_orifice:'Вічко (UVJ)', bladder:'Сечовий міхур'
+    };
+    const stoneTypeLabels = {
+      urate:'Уратний', urate_oxalate:'Уратно-оксалатний', oxalate:'Оксалатний'
+    };
+    const statusLabels = {
+      active:'Активний', shrinking:'Зменшується', 
+      no_response:'Без відповіді', resolved:'Зник'
+    };
+    const modalityLabels = {
+      us:'УЗД', ct:'КТ', xray:'Рентген', other:'Інше'
+    };
+
+    function escapeHtml(str){
+      return String(str).replace(/[&<>"']/g, (m)=>({
+        '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+      }[m]));
+    }
+
+    function formatDate(dateStr){
+      if (!dateStr) return '—';
+      try{
+        const d = new Date(dateStr);
+        return d.toLocaleDateString('uk-UA', { year:'numeric', month:'long', day:'numeric' });
+      }catch(e){ return dateStr; }
+    }
+
+    // ==== init ====
+    if (!patientId || !stoneId){
+      alert('Помилка: не передано patient або stone у URL.');
+      window.location.href = 'index.html';
+    }
+
+    const stones = loadStones(patientId);
+    const stone = stones.find(s => s.id === stoneId);
+
+    if (!stone){
+      alert('Камінь не знайдено.');
+      window.location.href = `patient-profile.html?patient=${encodeURIComponent(patientId)}`;
+    }
+
+    // setup links
+    const returnUrl = `patient-profile.html?patient=${encodeURIComponent(patientId)}`;
+    document.getElementById('backBtn').href = returnUrl;
+    document.getElementById('addObsBtn').href = 
+      `stone-observation.html?patient=${encodeURIComponent(patientId)}&stone=${encodeURIComponent(stoneId)}&return=stone-observations-view.html%3Fpatient%3D${encodeURIComponent(patientId)}%26stone%3D${encodeURIComponent(stoneId)}`;
+
+    // render stone info
+    const stoneInfoHtml = `
+      <div class="stone-info-item">
+        <div class="stone-info-label">Орган</div>
+        <div class="stone-info-value">${organLabels[stone.organ] || stone.organ}</div>
+      </div>
+      <div class="stone-info-item">
+        <div class="stone-info-label">Локалізація</div>
+        <div class="stone-info-value">${locationLabels[stone.location] || stone.location}</div>
+      </div>
+      <div class="stone-info-item">
+        <div class="stone-info-label">Тип каменю</div>
+        <div class="stone-info-value">${stoneTypeLabels[stone.stone_type] || stone.stone_type || '—'}</div>
+      </div>
+      <div class="stone-info-item">
+        <div class="stone-info-label">Щільність (HU)</div>
+        <div class="stone-info-value">${stone.density_hu?.min || '—'} / ${stone.density_hu?.mean || '—'} / ${stone.density_hu?.max || '—'}</div>
+      </div>
+    `;
+    document.getElementById('stoneInfo').innerHTML = stoneInfoHtml;
+
+    // ==== render observations ====
+    function renderObservations(){
+      const obs = loadObservations(patientId, stoneId);
+      const container = document.getElementById('timelineContainer');
+
+      if (obs.length === 0){
+        container.innerHTML = `
+          <div class="empty-state">
+            <div class="empty-state-icon">📭</div>
+            <div class="empty-state-title">Поки що немає спостережень</div>
+            <div class="empty-state-text">
+              Додайте перше спостереження, щоб почати відстежувати динаміку зміни каменю
+            </div>
+            <a class="btn btn-primary" href="${document.getElementById('addObsBtn').href}">
+              + Додати спостереження
+            </a>
+          </div>
+        `;
+        return;
+      }
+
+      // sort by date desc
+      const sorted = obs.slice().sort((a,b) => {
+        const dateA = a.date || '';
+        const dateB = b.date || '';
+        return dateB.localeCompare(dateA);
+      });
+
+      const cardsHtml = sorted.map(o => {
+        const statusClass = `status-${o.status || 'active'}`;
+        return `
+          <div class="obs-card">
+            <div class="obs-header">
+              <div>
+                <div class="obs-date">${escapeHtml(formatDate(o.date))}</div>
+                <div class="obs-modality" style="margin-top:6px;">
+                  ${modalityLabels[o.modality] || o.modality || '—'}
+                </div>
+              </div>
+            </div>
+
+            <div class="obs-grid">
+              <div class="obs-field">
+                <div class="obs-field-label">Розмір (мм)</div>
+                <div class="obs-field-value">
+                  ${o.size_mm?.length_max || '—'} × ${o.size_mm?.width_max || '—'}
+                </div>
+              </div>
+              <div class="obs-field">
+                <div class="obs-field-label">Статус</div>
+                <div class="obs-field-value">
+                  <span class="status-badge ${statusClass}">
+                    ${statusLabels[o.status] || o.status || '—'}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            ${o.note ? `
+              <div class="obs-note">
+                <strong>Нотатки:</strong><br>
+                ${escapeHtml(o.note).replace(/\n/g, '<br>')}
+              </div>
+            ` : ''}
+
+            <div class="obs-actions">
+              <button class="btn-icon" onclick="editObservation('${escapeHtml(o.id)}')" title="Редагувати">✎</button>
+              <button class="btn-icon danger" onclick="deleteObservation('${escapeHtml(o.id)}')" title="Видалити">🗑️</button>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      container.innerHTML = `<div class="timeline">${cardsHtml}</div>`;
+    }
+
+    function editObservation(obsId){
+      window.location.href = 
+        `stone-observation.html?patient=${encodeURIComponent(patientId)}&stone=${encodeURIComponent(stoneId)}&edit=${encodeURIComponent(obsId)}&return=stone-observations-view.html%3Fpatient%3D${encodeURIComponent(patientId)}%26stone%3D${encodeURIComponent(stoneId)}`;
+    }
+
+    function deleteObservation(obsId){
+      if (!confirm('Ви впевнені, що хочете видалити це спостереження?')) return;
+
+      const obs = loadObservations(patientId, stoneId);
+      const idx = obs.findIndex(o => o.id === obsId);
+      if (idx === -1) return;
+
+      obs.splice(idx, 1);
+      saveObservations(patientId, stoneId, obs);
+
+      renderObservations();
+    }
+
+    // globals
+    window.editObservation = editObservation;
+    window.deleteObservation = deleteObservation;
+
+    // init render
+    renderObservations();
+  </script>
+</body>
+</html>

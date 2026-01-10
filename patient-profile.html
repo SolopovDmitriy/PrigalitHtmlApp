@@ -860,6 +860,12 @@ function getCurrentStoneState(stone){
                         📅
                       </button>
 
+                      <button class="btn-icon" 
+                              onclick="window.location.href='stone-observations-view.html?patient=${patientId}&stone=${stone.id}'" 
+                              title="Переглянути спостереження">
+                        📊
+                      </button>
+
                       <button class="btn-icon" onclick="editStone('${stone.id}')" title="Редагувати">✎</button>
 
                       <button class="btn-icon" title="Завантажити фото">
